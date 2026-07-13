@@ -35,3 +35,22 @@ export async function apiFetch(path, options = {}) {
 export function getMe() {
   return apiFetch('/auth/me')
 }
+
+export function getDashboardSummary(filters = {}) {
+  const params = new URLSearchParams()
+  Object.entries(filters).forEach(([k, v]) => { if (v) params.set(k, v) })
+  const qs = params.toString()
+  return apiFetch(`/dashboard/summary${qs ? `?${qs}` : ''}`)
+}
+
+export function getFilterOptions() {
+  return apiFetch('/dashboard/filter-options')
+}
+
+export function getCityCoordinates() {
+  return apiFetch('/dashboard/city-coordinates')
+}
+
+export function logCall(leadId) {
+  return apiFetch(`/dashboard/log-call?lead_id=${leadId}`, { method: 'POST' })
+}
