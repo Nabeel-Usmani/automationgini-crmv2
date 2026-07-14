@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -11,25 +11,42 @@ export default function WebsiteDemo() {
   const [status, setStatus] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
   const [loading, setLoading] = useState(false)
+  const [progress, setProgress] = useState(null)
   const [created, setCreated] = useState([])
   const [billing, setBilling] = useState(null)
+  const pollRef = useRef(null)
 
   useEffect(() => {
     apiFetch('/billing/summary').then(setBilling).catch(() => {})
     apiFetch('/demo/website/created').then(setCreated).catch(() => {})
+    return () => clearInterval(pollRef.current)
   }, [tab])
+
+  function pollStatus(purchaseId, token) {
+    pollRef.current = setInterval(async () => {
+      try {
+        const s = await apiFetch(`/demo/website/${purchaseId}/status`)
+        setProgress(s)
+        if (s.fulfillment_status === 'completed') {
+          clearInterval(pollRef.current)
+          setPreviewUrl(`https://crm-leads-enterprise.onrender.com/?preview=${token}&page=index`)
+          setStatus('Preview ready!')
+          setLoading(false)
+        }
+      } catch {}
+    }, 8000)
+  }
 
   async function buildPreview(productType = 'website_html') {
     if (!selectedLead) return
     setLoading(true)
-    setStatus('Building your live preview... this takes a couple of minutes.')
+    setPreviewUrl('')
+    setStatus('Building your live preview... this takes a couple of minutes, feel free to check the "Sites Created" tab later instead of waiting here.')
     try {
       const result = await apiFetch('/demo/website', { method: 'POST', body: JSON.stringify({ lead_id: selectedLead.id, product_type: productType }) })
-      setPreviewUrl(`https://crm-leads-enterprise.onrender.com/?preview=${result.preview_token}&page=index`)
-      setStatus('Preview ready!')
+      pollStatus(result.purchase_id, result.preview_token)
     } catch (e) {
       setStatus(e.message)
-    } finally {
       setLoading(false)
     }
   }
@@ -61,6 +78,9 @@ export default function WebsiteDemo() {
             <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build React Preview</button>
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
+          {progress && progress.fulfillment_status !== 'completed' && (
+            <p className="font-mono text-xs text-slate-400">{progress.pages_done.length} / {progress.pages_total} pages generated so far...</p>
+          )}
           {previewUrl && (
             <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-block font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
               🔗 Open Live Preview
@@ -77,9 +97,13 @@ export default function WebsiteDemo() {
                 <p className="font-body font-semibold text-navy">{d.business_name}</p>
                 <p className="font-body text-sm text-slate">{d.niche} · {d.city}</p>
               </div>
-              <a href={`https://crm-leads-enterprise.onrender.com/?preview=${d.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">
-                Open Preview
-              </a>
+              {d.fulfillment_status === 'completed' ? (
+                <a href={`https://crm-leads-enterprise.onrender.com/?preview=${d.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">
+                  Open Preview
+                </a>
+              ) : (
+                <span className="text-xs font-semibold text-amber-700 bg-amber-100 rounded-lg px-3 py-1.5">Still building...</span>
+              )}
             </div>
           ))}
         </div>
