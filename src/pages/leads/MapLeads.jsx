@@ -3,12 +3,27 @@ import { apiFetch } from '../../lib/api'
 import FilterPopover from '../../components/FilterPopover'
 import EmptyState from '../../components/EmptyState'
 
+const STATUS_OPTIONS = ['New', 'Called', 'Interested', 'Not Interested', 'Follow-up']
+
+const STATUS_COLORS = {
+  'New': 'bg-slate-100 text-slate',
+  'Called': 'bg-blue/10 text-blue',
+  'Interested': 'bg-green-100 text-green-700',
+  'Not Interested': 'bg-red-100 text-red-700',
+  'Follow-up': 'bg-amber-100 text-amber-800',
+}
+
 export default function MapLeads() {
   const [leads, setLeads] = useState([])
-  const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: [] })
+  const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: STATUS_OPTIONS })
   const [filters, setFilters] = useState({ niches: [], countries: [], cities: [], statuses: [] })
   const [highPotentialOnly, setHighPotentialOnly] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  function refresh() {
+    setLoading(true)
+    apiFetch('/leads').then((data) => setLeads(data || [])).catch(() => {}).finally(() => setLoading(false))
+  }
 
   useEffect(() => {
     apiFetch('/leads/filter-options').then((o) => {
@@ -17,10 +32,7 @@ export default function MapLeads() {
     }).catch(() => {})
   }, [])
 
-  useEffect(() => {
-    setLoading(true)
-    apiFetch('/leads').then((data) => setLeads(data || [])).catch(() => {}).finally(() => setLoading(false))
-  }, [])
+  useEffect(() => { refresh() }, [])
 
   const filtered = leads.filter((l) =>
     (filters.niches.length === 0 || filters.niches.includes(l.niche)) &&
@@ -33,6 +45,25 @@ export default function MapLeads() {
   async function callLead(lead) {
     try { await apiFetch(`/dashboard/log-call?lead_id=${lead.id}`, { method: 'POST' }) } catch {}
     window.open(`tel:${lead.phone_number}`, '_blank')
+  }
+
+  async function changeStatus(leadId, status) {
+    setLeads((prev) => prev.map((l) => (l.id === leadId ? { ...l, call_status: status } : l)))
+    try {
+      await apiFetch(`/leads/${leadId}/status?status=${encodeURIComponent(status)}`, { method: 'POST' })
+    } catch {
+      refresh()
+    }
+  }
+
+  async function deleteLead(leadId, businessName) {
+    if (!window.confirm(`Delete "${businessName}"? This can't be undone.`)) return
+    setLeads((prev) => prev.filter((l) => l.id !== leadId))
+    try {
+      await apiFetch(`/leads/${leadId}`, { method: 'DELETE' })
+    } catch {
+      refresh()
+    }
   }
 
   return (
@@ -74,6 +105,7 @@ export default function MapLeads() {
                 <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Website</th>
                 <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Email</th>
                 <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Status</th>
+                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3"></th>
               </tr>
             </thead>
             <tbody>
@@ -133,9 +165,22 @@ export default function MapLeads() {
                     )}
                   </td>
                   <td className="px-4 py-3.5">
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${lead.source === 'custom_url' ? 'bg-blue/10 text-blue' : 'bg-slate-100 text-slate'}`}>
-                      {lead.call_status}
-                    </span>
+                    <select
+                      value={lead.call_status}
+                      onChange={(e) => changeStatus(lead.id, e.target.value)}
+                      className={`text-xs font-semibold rounded-full px-2.5 py-1 border-0 cursor-pointer ${STATUS_COLORS[lead.call_status] || 'bg-slate-100 text-slate'}`}
+                    >
+                      {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <button
+                      onClick={() => deleteLead(lead.id, lead.business_name)}
+                      title="Delete this lead"
+                      className="text-slate-300 hover:text-red-600 transition-colors"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               ))}
