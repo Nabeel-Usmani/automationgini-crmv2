@@ -18,6 +18,11 @@ export default function MapLeads() {
   const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: STATUS_OPTIONS })
   const [filters, setFilters] = useState({ niches: [], countries: [], cities: [], statuses: [] })
   const [highPotentialOnly, setHighPotentialOnly] = useState(false)
+  const [ratingFilter, setRatingFilter] = useState('all')
+  const [phoneFilter, setPhoneFilter] = useState('all')
+  const [websiteFilter, setWebsiteFilter] = useState('all')
+  const [emailFilter, setEmailFilter] = useState('all')
+  const [businessSearch, setBusinessSearch] = useState('')
   const [loading, setLoading] = useState(true)
 
   function refresh() {
@@ -39,7 +44,12 @@ export default function MapLeads() {
     (filters.countries.length === 0 || filters.countries.includes(l.country)) &&
     (filters.cities.length === 0 || filters.cities.includes(l.city)) &&
     (filters.statuses.length === 0 || filters.statuses.includes(l.call_status)) &&
-    (!highPotentialOnly || l.is_high_potential)
+    (!highPotentialOnly || l.is_high_potential) &&
+    (!businessSearch.trim() || l.business_name.toLowerCase().includes(businessSearch.trim().toLowerCase())) &&
+    (ratingFilter === 'all' || (ratingFilter === 'under4' ? (l.total_score == null || l.total_score < 4) : l.total_score >= 4)) &&
+    (phoneFilter === 'all' || (phoneFilter === 'has' ? !!l.phone_number : !l.phone_number)) &&
+    (websiteFilter === 'all' || (websiteFilter === 'has' ? l.website_status !== 'NO WEBSITE DETECTED' : l.website_status === 'NO WEBSITE DETECTED')) &&
+    (emailFilter === 'all' || (emailFilter === 'has' ? !!l.email : !l.email))
   )
 
   async function callLead(lead) {
@@ -71,11 +81,10 @@ export default function MapLeads() {
       <h1 className="font-display font-semibold text-2xl text-navy mb-1">Map Leads</h1>
       <p className="font-body text-slate mb-6">Every lead scraped from Google Maps, filterable by location and niche.</p>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
         <FilterPopover label="Niche" options={options.niches} selected={filters.niches} onChange={(v) => setFilters((f) => ({ ...f, niches: v }))} />
         <FilterPopover label="Country" options={options.countries} selected={filters.countries} onChange={(v) => setFilters((f) => ({ ...f, countries: v }))} />
         <FilterPopover label="City" options={options.cities} selected={filters.cities} onChange={(v) => setFilters((f) => ({ ...f, cities: v }))} />
-        <FilterPopover label="Status" options={options.statuses} selected={filters.statuses} onChange={(v) => setFilters((f) => ({ ...f, statuses: v }))} />
       </div>
 
       <div className="flex items-center justify-between mb-4">
@@ -99,13 +108,52 @@ export default function MapLeads() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Business</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Rating</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Phone</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Website</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Email</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3">Status</th>
-                <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-3"></th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Business</p>
+                  <input
+                    value={businessSearch}
+                    onChange={(e) => setBusinessSearch(e.target.value)}
+                    placeholder="Search..."
+                    className="w-full text-xs border border-slate-200 rounded px-2 py-1 font-body"
+                  />
+                </th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Rating</p>
+                  <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
+                    <option value="all">All</option>
+                    <option value="under4">Under 4★</option>
+                    <option value="4plus">4★ +</option>
+                  </select>
+                </th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Phone</p>
+                  <select value={phoneFilter} onChange={(e) => setPhoneFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
+                    <option value="all">All</option>
+                    <option value="has">Has phone</option>
+                    <option value="none">No phone</option>
+                  </select>
+                </th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Website</p>
+                  <select value={websiteFilter} onChange={(e) => setWebsiteFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
+                    <option value="all">All</option>
+                    <option value="has">Has website</option>
+                    <option value="none">No website</option>
+                  </select>
+                </th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Email</p>
+                  <select value={emailFilter} onChange={(e) => setEmailFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
+                    <option value="all">All</option>
+                    <option value="has">Has email</option>
+                    <option value="none">No email</option>
+                  </select>
+                </th>
+                <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Status</p>
+                  <FilterPopover label="" options={options.statuses} selected={filters.statuses} onChange={(v) => setFilters((f) => ({ ...f, statuses: v }))} />
+                </th>
+                <th className="px-4 py-2.5"></th>
               </tr>
             </thead>
             <tbody>
