@@ -4,6 +4,8 @@ import Home from './pages/Home'
 import Layout from './components/Layout'
 import MapLeads from './pages/leads/MapLeads'
 import PremiumLeads from './pages/leads/PremiumLeads'
+import ArchivedLeads from './pages/leads/ArchivedLeads'
+import Account from './pages/Account'
 import VoiceDemo from './pages/demo/VoiceDemo'
 import WebsiteDemo from './pages/demo/WebsiteDemo'
 import ChatbotDemo from './pages/demo/ChatbotDemo'
@@ -25,6 +27,8 @@ export default function App() {
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
+        <Route path="/leads/archived" element={wrap(ArchivedLeads)} />
+        <Route path="/account" element={wrap(Account)} />
         <Route path="/demo/voice" element={wrap(VoiceDemo)} />
         <Route path="/demo/website" element={wrap(WebsiteDemo)} />
         <Route path="/demo/chatbot" element={wrap(ChatbotDemo)} />
