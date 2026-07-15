@@ -23,6 +23,47 @@ export default function MapLeads() {
   const [websiteFilter, setWebsiteFilter] = useState('all')
   const [emailFilter, setEmailFilter] = useState('all')
   const [businessSearch, setBusinessSearch] = useState('')
+  const [selectedIds, setSelectedIds] = useState(new Set())
+
+  function toggleSelect(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  function selectAllVisible() {
+    setSelectedIds(new Set(filtered.map((l) => l.id)))
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set())
+  }
+
+  async function bulkArchive() {
+    const ids = Array.from(selectedIds)
+    setLeads((prev) => prev.filter((l) => !selectedIds.has(l.id)))
+    clearSelection()
+    try {
+      await apiFetch('/leads/bulk-archive', { method: 'POST', body: JSON.stringify({ lead_ids: ids }) })
+    } catch {
+      refresh()
+    }
+  }
+
+  async function bulkDelete() {
+    const ids = Array.from(selectedIds)
+    if (!window.confirm(`Delete ${ids.length} lead(s)? This can't be undone.`)) return
+    setLeads((prev) => prev.filter((l) => !selectedIds.has(l.id)))
+    clearSelection()
+    try {
+      await apiFetch('/leads/bulk-delete', { method: 'POST', body: JSON.stringify({ lead_ids: ids }) })
+    } catch {
+      refresh()
+    }
+  }
   const [loading, setLoading] = useState(true)
 
   function refresh() {
@@ -99,6 +140,30 @@ export default function MapLeads() {
         <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
       </div>
 
+      {selectedIds.size > 0 && (
+        <div className="flex items-center justify-between bg-navy text-white rounded-xl px-4 py-2.5 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold">{selectedIds.size} selected</span>
+            {selectedIds.size < filtered.length && (
+              <button onClick={selectAllVisible} className="text-xs font-semibold text-blue-light hover:underline">
+                Select all {filtered.length}
+              </button>
+            )}
+            <button onClick={clearSelection} className="text-xs font-semibold text-white/70 hover:text-white hover:underline">
+              Clear
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={bulkArchive} className="text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5">
+              📦 Archive
+            </button>
+            <button onClick={bulkDelete} className="text-xs font-semibold bg-red-500/80 hover:bg-red-500 rounded-lg px-3 py-1.5">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p className="font-body text-slate">Loading...</p>
       ) : filtered.length === 0 ? (
@@ -108,6 +173,14 @@ export default function MapLeads() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50">
+                <th className="px-4 py-2.5 w-8">
+                  <input
+                    type="checkbox"
+                    checked={filtered.length > 0 && selectedIds.size === filtered.length}
+                    onChange={(e) => (e.target.checked ? selectAllVisible() : clearSelection())}
+                    className="accent-blue"
+                  />
+                </th>
                 <th className="text-left px-4 py-2.5">
                   <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Business</p>
                   <input
@@ -159,6 +232,14 @@ export default function MapLeads() {
             <tbody>
               {filtered.map((lead) => (
                 <tr key={lead.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
+                  <td className="px-4 py-3.5">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(lead.id)}
+                      onChange={() => toggleSelect(lead.id)}
+                      className="accent-blue"
+                    />
+                  </td>
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       {lead.is_high_potential && (
