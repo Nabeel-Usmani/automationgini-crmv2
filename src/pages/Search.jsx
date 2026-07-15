@@ -5,6 +5,8 @@ export default function Search() {
   const [niche, setNiche] = useState('')
   const [countries, setCountries] = useState([])
   const [country, setCountry] = useState('US')
+  const [countryQuery, setCountryQuery] = useState('')
+  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false)
   const [cityQuery, setCityQuery] = useState('')
   const [citySuggestions, setCitySuggestions] = useState([])
   const [selectedCities, setSelectedCities] = useState([])
@@ -17,8 +19,22 @@ export default function Search() {
   const debounceRef = useRef(null)
 
   useEffect(() => {
-    apiFetch('/search/countries').then(setCountries).catch(() => {})
+    apiFetch('/search/countries').then((list) => {
+      setCountries(list)
+      const initial = list.find((c) => c.iso2 === country)
+      if (initial) setCountryQuery(`${initial.emoji} ${initial.name}`)
+    }).catch(() => {})
   }, [])
+
+  function selectCountry(c) {
+    setCountry(c.iso2)
+    setCountryQuery(`${c.emoji} ${c.name}`)
+    setCountryDropdownOpen(false)
+  }
+
+  const filteredCountries = countryQuery.trim()
+    ? countries.filter((c) => c.name.toLowerCase().includes(countryQuery.trim().toLowerCase()))
+    : countries
 
   useEffect(() => {
     setSelectedCities([])
@@ -79,11 +95,31 @@ export default function Search() {
           <input value={niche} onChange={(e) => setNiche(e.target.value)} placeholder="e.g. Dental, HVAC, Landscaping" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 font-body" />
         </div>
 
-        <div>
+        <div className="relative">
           <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Country</label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 font-body">
-            {countries.map((c) => <option key={c.iso2} value={c.iso2}>{c.emoji} {c.name}</option>)}
-          </select>
+          <input
+            value={countryQuery}
+            onChange={(e) => { setCountryQuery(e.target.value); setCountryDropdownOpen(true) }}
+            onFocus={() => setCountryDropdownOpen(true)}
+            placeholder="Type to search countries..."
+            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 font-body"
+          />
+          {countryDropdownOpen && filteredCountries.length > 0 && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setCountryDropdownOpen(false)} />
+              <div className="absolute z-20 mt-1 w-full bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto">
+                {filteredCountries.slice(0, 50).map((c) => (
+                  <button
+                    key={c.iso2}
+                    onClick={() => selectCountry(c)}
+                    className="w-full text-left px-3 py-2 text-sm font-body text-navy hover:bg-slate-50"
+                  >
+                    {c.emoji} {c.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         <div>
