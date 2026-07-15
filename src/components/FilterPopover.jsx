@@ -24,7 +24,7 @@ export default function FilterPopover({ label, options, selected, onChange }) {
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center justify-between text-left bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-body text-navy hover:border-blue transition-colors"
       >
-        <span className="truncate">{label}: {summary}</span>
+        <span className="truncate">{label ? `${label}: ${summary}` : summary}</span>
         <span className="text-slate-400 ml-2">▾</span>
       </button>
 
