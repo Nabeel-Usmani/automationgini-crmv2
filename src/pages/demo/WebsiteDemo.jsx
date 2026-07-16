@@ -74,8 +74,8 @@ export default function WebsiteDemo() {
         <div className="space-y-4">
           <LeadPicker onSelect={setSelectedLead} />
           <div className="flex gap-3">
-            <button disabled={loading} onClick={() => buildPreview('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build HTML Preview</button>
-            <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build React Preview</button>
+            <button disabled={loading} onClick={() => buildPreview('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Normal Architecture)</button>
+            <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Modern Architecture)</button>
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {progress && progress.fulfillment_status !== 'completed' && (
