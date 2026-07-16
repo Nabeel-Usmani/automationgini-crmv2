@@ -14,6 +14,7 @@ import BuildWebsite from './pages/build/Website'
 import BuildChatbot from './pages/build/Chatbot'
 import Search from './pages/Search'
 import Billing from './pages/Billing'
+import PlatformOwnerDashboard from './pages/PlatformOwnerDashboard'
 
 function wrap(Component) {
   return <Layout>{(user) => <Component user={user} />}</Layout>
@@ -24,6 +25,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/platform-owner" element={<PlatformOwnerDashboard />} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
