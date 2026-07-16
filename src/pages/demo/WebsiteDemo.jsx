@@ -76,6 +76,7 @@ export default function WebsiteDemo() {
           <div className="flex gap-3">
             <button disabled={loading} onClick={() => buildPreview('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Normal Architecture)</button>
             <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Modern Architecture)</button>
+            <button disabled={loading} onClick={() => buildPreview('website_react_video')} className="font-body font-semibold text-sm text-white bg-gradient-to-r from-navy to-blue hover:opacity-90 disabled:opacity-60 rounded-lg px-5 py-2.5 transition-opacity">🎬 Build Mockup (Modern Architecture + Embedded Video)</button>
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {progress && progress.fulfillment_status !== 'completed' && (
