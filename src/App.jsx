@@ -26,6 +26,7 @@ export default function App() {
       <Routes>
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/platform-owner" element={<PlatformOwnerDashboard />} />
+        <Route path="/platform-admin" element={<Navigate to="/platform-owner" replace />} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
