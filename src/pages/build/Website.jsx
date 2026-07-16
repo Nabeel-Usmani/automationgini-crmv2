@@ -41,8 +41,8 @@ export default function BuildWebsite() {
         <div className="space-y-4">
           <LeadPicker onSelect={setSelectedLead} />
           <div className="flex gap-3">
-            <button onClick={() => submit('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue rounded-lg px-5 py-2.5 transition-colors">$75 — HTML</button>
-            <button onClick={() => submit('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue rounded-lg px-5 py-2.5 transition-colors">$150 — React</button>
+            <button onClick={() => submit('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue rounded-lg px-5 py-2.5 transition-colors">$75 — Normal Architecture</button>
+            <button onClick={() => submit('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue rounded-lg px-5 py-2.5 transition-colors">$150 — Modern Architecture</button>
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
