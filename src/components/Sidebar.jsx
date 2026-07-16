@@ -42,7 +42,7 @@ export default function Sidebar({ user }) {
     sections.push({ label: 'Manage Agents', icon: '👥', path: '/manage-agents', flat: true })
   }
   if (isPlatformOwner) {
-    sections.push({ label: 'Platform Admin', icon: '🛡️', path: '/platform-admin', flat: true })
+    sections.push({ label: 'Platform Admin', icon: '🛡️', path: '/platform-owner', flat: true })
   }
 
   return (
