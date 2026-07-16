@@ -4,11 +4,25 @@ import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
 import TabButton from '../../components/TabButton'
 
+const LANGUAGES = [
+  { code: 'ar', name: 'Arabic', flag: '🇸🇦' },
+  { code: 'zh', name: 'Chinese', flag: '🇨🇳' },
+  { code: 'hi', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'fr', name: 'French', flag: '🇫🇷' },
+  { code: 'es', name: 'Spanish', flag: '🇪🇸' },
+  { code: 'ru', name: 'Russian', flag: '🇷🇺' },
+  { code: 'pt', name: 'Portuguese', flag: '🇵🇹' },
+  { code: 'de', name: 'German', flag: '🇩🇪' },
+  { code: 'tr', name: 'Turkish', flag: '🇹🇷' },
+]
+
 export default function BuildVoiceAgent() {
   const [tab, setTab] = useState('new')
   const [selectedLead, setSelectedLead] = useState(null)
   const [byokKey, setByokKey] = useState('')
   const [customInstructions, setCustomInstructions] = useState('')
+  const [isBilingual, setIsBilingual] = useState(false)
+  const [languageCode, setLanguageCode] = useState('ar')
   const [status, setStatus] = useState('')
   const [checkoutUrl, setCheckoutUrl] = useState('')
   const [created, setCreated] = useState([])
@@ -21,7 +35,10 @@ export default function BuildVoiceAgent() {
     try {
       const result = await apiFetch('/build/voice-agent/checkout', {
         method: 'POST',
-        body: JSON.stringify({ lead_id: selectedLead.id, byok_key: byokKey.trim(), custom_instructions: customInstructions.trim() || null }),
+        body: JSON.stringify({
+          lead_id: selectedLead.id, byok_key: byokKey.trim(), custom_instructions: customInstructions.trim() || null,
+          language_code: isBilingual ? languageCode : null,
+        }),
       })
       if (result.checkout_url) { setCheckoutUrl(result.checkout_url); setStatus('') }
       else setStatus('Checkout isn\u2019t fully configured yet (Stripe keys pending).')
@@ -45,6 +62,27 @@ export default function BuildVoiceAgent() {
           <LeadPicker onSelect={setSelectedLead} requirePhone />
           <input value={byokKey} onChange={(e) => setByokKey(e.target.value)} type="password" placeholder="Client's Vapi API Key" className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 font-body" />
           <textarea value={customInstructions} onChange={(e) => setCustomInstructions(e.target.value)} placeholder="Custom instructions (optional)" rows={3} className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2.5 font-body" />
+
+          <div className="bg-white border border-slate-200 rounded-2xl p-4">
+            <label className="flex items-center gap-2 text-sm font-body font-semibold text-navy mb-3 cursor-pointer">
+              <input type="checkbox" checked={isBilingual} onChange={(e) => setIsBilingual(e.target.checked)} className="accent-blue" />
+              Bilingual (press 1 for language, 2 for English)
+            </label>
+            {isBilingual && (
+              <div className="grid grid-cols-3 gap-2">
+                {LANGUAGES.map((l) => (
+                  <button
+                    key={l.code}
+                    onClick={() => setLanguageCode(l.code)}
+                    className={`flex items-center gap-2 text-sm font-semibold rounded-lg px-3 py-2 border transition-colors ${languageCode === l.code ? 'border-blue bg-blue/5' : 'border-slate-200 hover:border-slate-300'}`}
+                  >
+                    {l.flag} {l.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <button onClick={submit} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue rounded-lg px-5 py-2.5 transition-colors">Charge $50 & Build Voice Agent</button>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
