@@ -3,6 +3,7 @@ import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
 import TabButton from '../../components/TabButton'
+import TemplateGallery from '../../components/TemplateGallery'
 
 const DEFAULT_PAGES = [
   { page_key: 'index', page_title: 'Home' },
@@ -27,6 +28,7 @@ export default function BuildWebsite() {
   const [tab, setTab] = useState('new')
   const [selectedLead, setSelectedLead] = useState(null)
   const [architecture, setArchitecture] = useState('website_html')
+  const [templateId, setTemplateId] = useState(null)
   const [logoDataUri, setLogoDataUri] = useState(null)
   const [logoName, setLogoName] = useState('')
   const [pageCount, setPageCount] = useState(4)
@@ -73,6 +75,7 @@ export default function BuildWebsite() {
         body: JSON.stringify({
           lead_id: selectedLead.id,
           product_type: architecture,
+          template_id: templateId,
           logo_data_uri: logoDataUri,
           pages: pages.map((p) => ({
             page_key: p.page_key,
@@ -118,6 +121,9 @@ export default function BuildWebsite() {
               ))}
             </div>
           </div>
+
+          {/* Template */}
+          <TemplateGallery selectedId={templateId} onSelect={setTemplateId} />
 
           {/* Logo */}
           <div className="bg-white border border-slate-200 rounded-2xl p-5">
