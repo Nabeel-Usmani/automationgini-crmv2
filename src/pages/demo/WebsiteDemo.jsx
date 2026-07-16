@@ -4,10 +4,12 @@ import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
 import MetricCard from '../../components/MetricCard'
 import TabButton from '../../components/TabButton'
+import TemplateGallery from '../../components/TemplateGallery'
 
 export default function WebsiteDemo() {
   const [tab, setTab] = useState('new')
   const [selectedLead, setSelectedLead] = useState(null)
+  const [templateId, setTemplateId] = useState(null)
   const [status, setStatus] = useState('')
   const [previewUrl, setPreviewUrl] = useState('')
   const [loading, setLoading] = useState(false)
@@ -43,7 +45,7 @@ export default function WebsiteDemo() {
     setPreviewUrl('')
     setStatus('Building your live preview... this takes a couple of minutes, feel free to check the "Sites Created" tab later instead of waiting here.')
     try {
-      const result = await apiFetch('/demo/website', { method: 'POST', body: JSON.stringify({ lead_id: selectedLead.id, product_type: productType }) })
+      const result = await apiFetch('/demo/website', { method: 'POST', body: JSON.stringify({ lead_id: selectedLead.id, product_type: productType, template_id: templateId }) })
       pollStatus(result.purchase_id, result.preview_token)
     } catch (e) {
       setStatus(e.message)
@@ -73,6 +75,7 @@ export default function WebsiteDemo() {
       {tab === 'new' ? (
         <div className="space-y-4">
           <LeadPicker onSelect={setSelectedLead} />
+          <TemplateGallery selectedId={templateId} onSelect={setTemplateId} />
           <div className="flex gap-3">
             <button disabled={loading} onClick={() => buildPreview('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Normal Architecture)</button>
             <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Modern Architecture)</button>
