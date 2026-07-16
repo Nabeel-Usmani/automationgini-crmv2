@@ -204,7 +204,7 @@ export default function BuildWebsite() {
                 <p className="font-body font-semibold text-navy">{s.business_name}</p>
                 <p className="font-body text-sm text-slate">{s.niche} · {s.city} · {s.payment_status}</p>
               </div>
-              <a href={`https://crm-leads-enterprise.onrender.com/?preview=${s.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View</a>
+              <a href={`https://automationgini-api.onrender.com/preview?preview=${s.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View</a>
             </div>
           ))}
         </div>
