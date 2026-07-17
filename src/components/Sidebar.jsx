@@ -28,6 +28,8 @@ const NAV_SECTIONS = [
     ],
   },
   { label: 'Run New Search', icon: '🔍', path: '/search', flat: true },
+  { label: 'Messenger', icon: '💬', path: '/messenger', flat: true, comingSoon: true },
+  { label: 'Email Automation', icon: '✉️', path: '/email-automation', flat: true, comingSoon: true },
 ]
 
 export default function Sidebar({ user }) {
@@ -66,6 +68,9 @@ export default function Sidebar({ user }) {
               >
                 <span>{section.icon}</span>
                 {section.label}
+                {section.comingSoon && (
+                  <span className="ml-auto text-[10px] font-semibold text-amber-700 bg-amber-100 rounded-full px-1.5 py-0.5">Soon</span>
+                )}
               </NavLink>
             )
           }
