@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -19,6 +19,132 @@ const ARCHITECTURES = [
   { value: 'website_react', label: 'Modern Architecture', price: '$150' },
   { value: 'website_react_video', label: '🎬 Modern Architecture + Embedded Video', price: '$150' },
 ]
+
+function SiteCard({ site }) {
+  const [expanded, setExpanded] = useState(false)
+  const [pageKey, setPageKey] = useState('index')
+  const [changeText, setChangeText] = useState('')
+  const [status, setStatus] = useState('')
+  const [revisions, setRevisions] = useState([])
+  const pollRef = useRef(null)
+
+  function loadRevisions() {
+    apiFetch(`/build/website/${site.id}/revisions`).then(setRevisions).catch(() => {})
+  }
+
+  useEffect(() => {
+    if (expanded) loadRevisions()
+  }, [expanded])
+
+  useEffect(() => {
+    const hasPending = revisions.some((r) => r.status === 'pending' && !r.has_preview)
+    if (hasPending) {
+      pollRef.current = setInterval(loadRevisions, 6000)
+      return () => clearInterval(pollRef.current)
+    }
+  }, [revisions])
+
+  async function submitChange() {
+    if (!changeText.trim()) { setStatus('Describe the change first.'); return }
+    setStatus('Submitting...')
+    try {
+      await apiFetch(`/build/website/${site.id}/request-change`, {
+        method: 'POST',
+        body: JSON.stringify({ page_key: pageKey, request_text: changeText.trim() }),
+      })
+      setStatus('Submitted — generating preview, usually takes under a minute.')
+      setChangeText('')
+      loadRevisions()
+    } catch (e) {
+      setStatus(e.message)
+    }
+  }
+
+  async function approve(id) {
+    try {
+      await apiFetch(`/build/website/revisions/${id}/approve`, { method: 'POST' })
+      loadRevisions()
+    } catch (e) {
+      setStatus(e.message)
+    }
+  }
+
+  async function reject(id) {
+    try {
+      await apiFetch(`/build/website/revisions/${id}/reject`, { method: 'POST' })
+      loadRevisions()
+    } catch (e) {
+      setStatus(e.message)
+    }
+  }
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="font-body font-semibold text-navy">{site.business_name}</p>
+          <p className="font-body text-sm text-slate">{site.niche} · {site.city} · {site.payment_status}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <a href={`https://automationgini-api.onrender.com/preview?preview=${site.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View Live</a>
+          <button onClick={() => setExpanded((v) => !v)} className="text-xs font-semibold text-navy bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5">
+            {expanded ? 'Close' : '✏️ Request Change'}
+          </button>
+        </div>
+      </div>
+
+      {expanded && (
+        <div className="mt-4 pt-4 border-t border-slate-100 space-y-4">
+          <div className="flex gap-2">
+            <select value={pageKey} onChange={(e) => setPageKey(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-2 font-body">
+              <option value="index">Home</option>
+              <option value="about">About</option>
+              <option value="services">Services</option>
+              <option value="contact">Contact</option>
+            </select>
+            <input
+              value={changeText}
+              onChange={(e) => setChangeText(e.target.value)}
+              placeholder="Describe the change, e.g. 'Add a Yelp link to the footer'"
+              className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 font-body"
+            />
+            <button onClick={submitChange} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue rounded-lg px-4 py-2 transition-colors">Submit</button>
+          </div>
+          {status && <p className="font-body text-xs text-slate">{status}</p>}
+
+          {revisions.length > 0 && (
+            <div className="space-y-2">
+              {revisions.map((r) => (
+                <div key={r.id} className="border border-slate-100 rounded-xl px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-body text-sm text-navy">{r.request_text}</p>
+                      <p className="font-mono text-[11px] text-slate-400">{r.page_key} · {new Date(r.created_at).toLocaleString()}</p>
+                    </div>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      r.status === 'applied' ? 'bg-green-100 text-green-700' :
+                      r.status === 'rejected' ? 'bg-slate-100 text-slate-500' :
+                      r.has_preview ? 'bg-amber-100 text-amber-700' : 'bg-blue/10 text-blue'
+                    }`}>
+                      {r.status === 'pending' && !r.has_preview ? 'generating...' : r.status === 'pending' ? 'ready to review' : r.status}
+                    </span>
+                  </div>
+                  {r.status === 'pending' && r.has_preview && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <a href={`https://automationgini-api.onrender.com/preview-revision?id=${r.id}`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue hover:underline">Preview Change →</a>
+                      <button onClick={() => approve(r.id)} className="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg px-3 py-1">Approve & Publish</button>
+                      <button onClick={() => reject(r.id)} className="text-xs font-semibold text-slate-500 hover:underline">Discard</button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
 
 function slugify(title) {
   return title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -205,13 +331,7 @@ export default function BuildWebsite() {
       ) : (
         <div className="space-y-3">
           {created.map((s) => (
-            <div key={s.id} className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
-              <div>
-                <p className="font-body font-semibold text-navy">{s.business_name}</p>
-                <p className="font-body text-sm text-slate">{s.niche} · {s.city} · {s.payment_status}</p>
-              </div>
-              <a href={`https://automationgini-api.onrender.com/preview?preview=${s.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View</a>
-            </div>
+            <SiteCard key={s.id} site={s} />
           ))}
         </div>
       )}
