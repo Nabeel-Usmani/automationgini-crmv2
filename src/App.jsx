@@ -17,6 +17,7 @@ import Billing from './pages/Billing'
 import PlatformOwnerDashboard from './pages/PlatformOwnerDashboard'
 import AgencyOwners from './pages/AgencyOwners'
 import AdminSettings from './pages/AdminSettings'
+import ComingSoon from './pages/ComingSoon'
 
 function wrap(Component) {
   return <Layout>{(user) => <Component user={user} />}</Layout>
@@ -31,6 +32,8 @@ export default function App() {
         <Route path="/platform-owner/agency-owners" element={<AgencyOwners />} />
         <Route path="/platform-owner/admin-settings" element={<AdminSettings />} />
         <Route path="/platform-admin" element={<Navigate to="/platform-owner" replace />} />
+        <Route path="/messenger" element={<Layout>{() => <ComingSoon icon="💬" title="Messenger" />}</Layout>} />
+        <Route path="/email-automation" element={<Layout>{() => <ComingSoon icon="✉️" title="Email Automation" />}</Layout>} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
