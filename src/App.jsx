@@ -9,6 +9,7 @@ import Account from './pages/Account'
 import VoiceDemo from './pages/demo/VoiceDemo'
 import WebsiteDemo from './pages/demo/WebsiteDemo'
 import ChatbotDemo from './pages/demo/ChatbotDemo'
+import AppMockupDemo from './pages/demo/AppMockupDemo'
 import BuildVoiceAgent from './pages/build/VoiceAgent'
 import BuildWebsite from './pages/build/Website'
 import BuildChatbot from './pages/build/Chatbot'
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/demo/voice" element={wrap(VoiceDemo)} />
         <Route path="/demo/website" element={wrap(WebsiteDemo)} />
         <Route path="/demo/chatbot" element={wrap(ChatbotDemo)} />
+        <Route path="/demo/app-mockup" element={wrap(AppMockupDemo)} />
         <Route path="/build/voice" element={wrap(BuildVoiceAgent)} />
         <Route path="/build/website" element={wrap(BuildWebsite)} />
         <Route path="/build/chatbot" element={wrap(BuildChatbot)} />
