@@ -17,6 +17,7 @@ const NAV_SECTIONS = [
       { label: 'Voice Demo', path: '/demo/voice' },
       { label: 'Website Mockup', path: '/demo/website' },
       { label: 'Chatbot Demo', path: '/demo/chatbot' },
+      { label: 'App Mockup', path: '/demo/app-mockup' },
     ],
   },
   {
@@ -35,7 +36,6 @@ const NAV_SECTIONS = [
 export default function Sidebar({ user }) {
   const [openSection, setOpenSection] = useState('Leads')
   const navigate = useNavigate()
-
   const isAgencyTier = user?.plan_name === 'Agency'
   const isPlatformOwner = !!user?.is_platform_owner
 
@@ -52,7 +52,6 @@ export default function Sidebar({ user }) {
       <div className="px-5 py-5 border-b border-slate-200">
         <span className="font-display font-semibold text-lg text-navy">⚡ AutomationGini</span>
       </div>
-
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         {sections.map((section) => {
           if (section.flat) {
@@ -74,7 +73,6 @@ export default function Sidebar({ user }) {
               </NavLink>
             )
           }
-
           const isOpen = openSection === section.label
           return (
             <div key={section.label}>
@@ -109,7 +107,6 @@ export default function Sidebar({ user }) {
           )
         })}
       </nav>
-
       <div className="px-5 py-4 border-t border-slate-200">
         <p className="font-body text-sm font-semibold text-navy truncate">{user?.full_name}</p>
         <p className="font-mono text-xs text-slate-400 mb-2">{user?.plan_name} plan</p>
