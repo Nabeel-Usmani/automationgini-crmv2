@@ -19,6 +19,7 @@ import PlatformOwnerDashboard from './pages/PlatformOwnerDashboard'
 import AgencyOwners from './pages/AgencyOwners'
 import AdminSettings from './pages/AdminSettings'
 import ComingSoon from './pages/ComingSoon'
+import ChatWidget from './components/ChatWidget'
 
 function wrap(Component) {
   return <Layout>{(user) => <Component user={user} />}</Layout>
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="/billing" element={wrap(Billing)} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+      <ChatWidget />
     </BrowserRouter>
   )
 }
