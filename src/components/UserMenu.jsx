@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { clearToken } from '../lib/api'
 
-export default function UserMenu({ user }) {
+export default function UserMenu({ user, onLogoutRequest }) {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
 
@@ -19,8 +19,15 @@ export default function UserMenu({ user }) {
   }
 
   function logout() {
-    clearToken()
-    window.location.href = 'https://automationgini-website.onrender.com/login'
+    setOpen(false)
+    if (onLogoutRequest) {
+      onLogoutRequest()
+    } else {
+      // Fallback for pages that don't wire in the survey-aware logout flow
+      // (e.g. the Platform Admin dashboard) - behaves exactly as before.
+      clearToken()
+      window.location.href = 'https://automationgini-website.onrender.com/login'
+    }
   }
 
   return (
