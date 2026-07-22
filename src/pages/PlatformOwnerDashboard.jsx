@@ -44,6 +44,67 @@ function CountryMap({ title, points, color }) {
   )
 }
 
+function SurveyResultsTable() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    apiFetch('/survey/results').then(setData).catch(() => {}).finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return null
+
+  const summary = data?.summary
+  const recent = data?.recent || []
+
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-8">
+      <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between flex-wrap gap-3">
+        <p className="font-body font-semibold text-navy">Survey Results</p>
+        {summary && (
+          <div className="flex items-center gap-5 font-mono text-xs text-slate-500">
+            <span>{summary.total_responses} responses</span>
+            <span>avg rating <b className="text-navy">{summary.avg_rating ?? '—'}</b>/5</span>
+            <span>avg reuse <b className="text-navy">{summary.avg_likely_to_reuse ?? '—'}</b>/5</span>
+            <span>avg willing to pay <b className="text-navy">${summary.avg_willingness_to_pay ?? '—'}</b></span>
+          </div>
+        )}
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-200 bg-slate-50">
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Username</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Country</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Trigger</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Rating</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Likely to Reuse</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Willing to Pay</th>
+              <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {recent.map((r, i) => (
+              <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
+                <td className="px-4 py-3 font-body text-navy">{r.full_name || r.username}</td>
+                <td className="px-4 py-3 font-body text-slate">{r.country_name || '—'}</td>
+                <td className="px-4 py-3 font-body text-slate capitalize">{r.trigger_type}</td>
+                <td className="px-4 py-3 font-body text-slate">{r.rating}/5</td>
+                <td className="px-4 py-3 font-body text-slate">{r.likely_to_reuse}/5</td>
+                <td className="px-4 py-3 font-body text-slate">{r.willingness_to_pay != null ? `$${r.willingness_to_pay}` : '—'}</td>
+                <td className="px-4 py-3 font-mono text-xs text-slate-400">{new Date(r.created_at).toLocaleDateString()}</td>
+              </tr>
+            ))}
+            {recent.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-6 text-center font-body text-slate-400">No survey responses yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
 function DashboardHome() {
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -92,6 +153,8 @@ function DashboardHome() {
           )}
         </div>
       </div>
+
+      <SurveyResultsTable />
 
       <div className="grid md:grid-cols-2 gap-6">
         <CountryMap title="All Users by Location" points={byCountry} color="#2563EB" />
