@@ -1,12 +1,36 @@
 import { useEffect, useState } from 'react'
-import { apiFetch } from '../lib/api'
+import { apiFetch, getMe } from '../lib/api'
+
+// While in beta, actual dollar amounts are hidden from regular demo/testing
+// users so pricing isn't anchored before it's finalized. Platform owners
+// always see real numbers. Flip this off once pricing is ready to reveal.
+const BLUR_PRICING_FOR_USERS = true
+
+function Price({ amount, blurred }) {
+  if (amount == null) return <span>Custom</span>
+  if (!blurred) return <span>${amount}/mo</span>
+  return (
+    <span className="relative inline-block">
+      <span className="blur-[6px] select-none pointer-events-none">${amount}/mo</span>
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-slate-400">
+        hidden
+      </span>
+    </span>
+  )
+}
 
 export default function Billing() {
   const [data, setData] = useState(null)
+  const [isPlatformOwner, setIsPlatformOwner] = useState(false)
 
-  useEffect(() => { apiFetch('/billing/summary').then(setData).catch(() => {}) }, [])
+  useEffect(() => {
+    apiFetch('/billing/summary').then(setData).catch(() => {})
+    getMe().then((u) => setIsPlatformOwner(!!u.is_platform_owner)).catch(() => {})
+  }, [])
 
   if (!data) return <div className="px-8 py-8 font-body text-slate">Loading...</div>
+
+  const shouldBlur = BLUR_PRICING_FOR_USERS && !isPlatformOwner
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-8">
@@ -15,7 +39,9 @@ export default function Billing() {
 
       <div className="bg-white border border-slate-200 rounded-2xl p-6 mb-6">
         <span className="inline-block text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2.5 py-1 mb-2">Current Plan</span>
-        <p className="font-display font-semibold text-2xl text-navy">{data.plan_name} — {data.caps.price != null ? `$${data.caps.price}/mo` : 'Custom'}</p>
+        <p className="font-display font-semibold text-2xl text-navy">
+          {data.plan_name} — <Price amount={data.caps.price} blurred={shouldBlur} />
+        </p>
       </div>
 
       <h2 className="font-body font-semibold text-navy mb-3">Usage This Month</h2>
@@ -31,7 +57,9 @@ export default function Billing() {
         {Object.entries(data.all_plans).map(([name, plan]) => (
           <div key={name} className={`bg-white border rounded-2xl p-5 ${name === data.plan_name ? 'border-blue ring-2 ring-blue/20' : 'border-slate-200'}`}>
             <p className="font-display font-semibold text-navy mb-1">{name}</p>
-            <p className="font-mono text-lg text-navy mb-3">{plan.price != null ? `$${plan.price}/mo` : 'Custom'}</p>
+            <p className="font-mono text-lg text-navy mb-3">
+              <Price amount={plan.price} blurred={shouldBlur} />
+            </p>
             <ul className="space-y-1 text-xs font-body text-slate">
               <li>{plan.leads ?? 'Unlimited'} leads</li>
               <li>{plan.vapi_call ?? 'Unlimited'} voice demos</li>
@@ -41,6 +69,12 @@ export default function Billing() {
           </div>
         ))}
       </div>
+
+      {shouldBlur && (
+        <p className="font-mono text-xs text-slate-400 mt-6">
+          Pricing is hidden during the beta period.
+        </p>
+      )}
     </div>
   )
 }
