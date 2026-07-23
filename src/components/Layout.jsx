@@ -15,7 +15,7 @@ export default function Layout({ children }) {
 
   function performLogout() {
     clearToken()
-    window.location.href = 'https://automationgini-website.onrender.com/login'
+    window.location.href = 'https://automationgini.com/login'
   }
 
   const requestLogout = useCallback(async () => {
@@ -37,7 +37,7 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     if (!getToken()) {
-      window.location.href = 'https://automationgini-website.onrender.com/login'
+      window.location.href = 'https://automationgini.com/login'
       return
     }
     getMe().then(async (u) => {
