@@ -8,7 +8,7 @@ export default function PlatformOwnerAuth({ children }) {
 
   useEffect(() => {
     if (!getToken()) {
-      window.location.href = 'https://automationgini-website.onrender.com/login'
+      window.location.href = 'https://automationgini.com/login'
       return
     }
     getMe()
