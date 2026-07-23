@@ -1,4 +1,4 @@
-const API_BASE = 'https://automationgini-api.onrender.com'
+const API_BASE = 'https://api.automationgini.com'
 
 export function getToken() {
   return localStorage.getItem('ag_token')
