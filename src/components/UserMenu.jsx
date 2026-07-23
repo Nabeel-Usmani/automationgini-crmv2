@@ -26,7 +26,7 @@ export default function UserMenu({ user, onLogoutRequest }) {
       // Fallback for pages that don't wire in the survey-aware logout flow
       // (e.g. the Platform Admin dashboard) - behaves exactly as before.
       clearToken()
-      window.location.href = 'https://automationgini-website.onrender.com/login'
+      window.location.href = 'https://automationgini.com/login'
     }
   }
 
