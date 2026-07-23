@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { apiFetch } from '../lib/api'
 
-const PREVIEW_BASE = 'https://automationgini-api.onrender.com/templates/preview?id='
+const PREVIEW_BASE = 'https://api.automationgini.com/templates/preview?id='
 
 export default function TemplateGallery({ selectedId, onSelect }) {
   const [templates, setTemplates] = useState({ normal: [], modern: [] })
