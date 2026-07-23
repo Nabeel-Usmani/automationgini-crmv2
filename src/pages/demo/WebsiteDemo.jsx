@@ -31,7 +31,7 @@ export default function WebsiteDemo() {
         setProgress(s)
         if (s.fulfillment_status === 'completed') {
           clearInterval(pollRef.current)
-          setPreviewUrl(`https://automationgini-api.onrender.com/preview?preview=${token}&page=index`)
+          setPreviewUrl(`https://api.automationgini.com/preview?preview=${token}&page=index`)
           setStatus('Preview ready!')
           setLoading(false)
         }
@@ -102,7 +102,7 @@ export default function WebsiteDemo() {
                 <p className="font-body text-sm text-slate">{d.niche} · {d.city}</p>
               </div>
               {d.fulfillment_status === 'completed' ? (
-                <a href={`https://automationgini-api.onrender.com/preview?preview=${d.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">
+                <a href={`https://api.automationgini.com/preview?preview=${d.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">
                   Open Preview
                 </a>
               ) : (
