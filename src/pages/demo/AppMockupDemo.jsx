@@ -24,7 +24,7 @@ export default function AppMockupDemo() {
         const s = await apiFetch(`/demo/app-mockup/${purchaseId}/status`)
         if (s.fulfillment_status === 'completed') {
           clearInterval(pollRef.current)
-          setPreviewUrl(`https://automationgini-api.onrender.com/preview?preview=${token}&page=index`)
+          setPreviewUrl(`https://api.automationgini.com/preview?preview=${token}&page=index`)
           setStatus('App mockup ready!')
           setLoading(false)
         }
@@ -81,7 +81,7 @@ export default function AppMockupDemo() {
                 <p className="font-body font-semibold text-navy">{m.business_name}</p>
                 <p className="font-body text-sm text-slate">{m.niche} · {m.city}</p>
               </div>
-              <a href={`https://automationgini-api.onrender.com/preview?preview=${m.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View</a>
+              <a href={`https://api.automationgini.com/preview?preview=${m.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View</a>
             </div>
           ))}
         </div>
