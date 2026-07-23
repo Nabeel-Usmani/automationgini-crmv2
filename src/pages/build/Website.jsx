@@ -86,7 +86,7 @@ function SiteCard({ site }) {
           <p className="font-body text-sm text-slate">{site.niche} · {site.city} · {site.payment_status}</p>
         </div>
         <div className="flex items-center gap-2">
-          <a href={`https://automationgini-api.onrender.com/preview?preview=${site.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View Live</a>
+          <a href={`https://api.automationgini.com/preview?preview=${site.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View Live</a>
           <button onClick={() => setExpanded((v) => !v)} className="text-xs font-semibold text-navy bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5">
             {expanded ? 'Close' : '✏️ Request Change'}
           </button>
@@ -131,7 +131,7 @@ function SiteCard({ site }) {
                   </div>
                   {r.status === 'pending' && r.has_preview && (
                     <div className="flex items-center gap-2 mt-2">
-                      <a href={`https://automationgini-api.onrender.com/preview-revision?id=${r.id}`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue hover:underline">Preview Change →</a>
+                      <a href={`https://api.automationgini.com/preview-revision?id=${r.id}`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue hover:underline">Preview Change →</a>
                       <button onClick={() => approve(r.id)} className="text-xs font-semibold text-white bg-green-600 hover:bg-green-700 rounded-lg px-3 py-1">Approve & Publish</button>
                       <button onClick={() => reject(r.id)} className="text-xs font-semibold text-slate-500 hover:underline">Discard</button>
                     </div>
