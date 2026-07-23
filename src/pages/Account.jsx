@@ -110,12 +110,32 @@ function SettingsTab() {
   )
 }
 
+// While in beta, actual dollar amounts are hidden from regular demo/testing
+// users so pricing isn't anchored before it's finalized. Platform owners
+// always see real numbers. Flip this off once pricing is ready to reveal.
+const BLUR_PRICING_FOR_USERS = true
+
+function Price({ amount, blurred }) {
+  if (amount == null) return <span>Custom</span>
+  if (!blurred) return <span>${amount}/mo</span>
+  return (
+    <span className="relative inline-block">
+      <span className="blur-[6px] select-none pointer-events-none">${amount}/mo</span>
+      <span className="absolute inset-0 flex items-center justify-center font-mono text-[10px] text-slate-400">
+        hidden
+      </span>
+    </span>
+  )
+}
+
 function PlanTab({ user }) {
   const [data, setData] = useState(null)
 
   useEffect(() => { apiFetch('/billing/summary').then(setData).catch(() => {}) }, [])
 
   if (!data) return <p className="font-body text-slate">Loading...</p>
+
+  const shouldBlur = BLUR_PRICING_FOR_USERS && !user?.is_platform_owner
 
   return (
     <div className="grid md:grid-cols-4 gap-4">
@@ -125,7 +145,7 @@ function PlanTab({ user }) {
           <div key={name} className={`bg-white border rounded-2xl p-5 ${isCurrent ? 'border-blue ring-2 ring-blue/20' : 'border-slate-200'}`}>
             {isCurrent && <span className="inline-block text-xs font-semibold text-blue bg-blue/10 rounded-full px-2.5 py-1 mb-2">Current Plan</span>}
             <p className="font-display font-semibold text-navy mb-1">{name}</p>
-            <p className="font-mono text-lg text-navy mb-3">{plan.price != null ? `$${plan.price}/mo` : 'Custom'}</p>
+            <p className="font-mono text-lg text-navy mb-3"><Price amount={plan.price} blurred={shouldBlur} /></p>
             <ul className="space-y-1 text-xs font-body text-slate">
               <li>{plan.leads ?? 'Unlimited'} leads</li>
               <li>{plan.vapi_call ?? 'Unlimited'} voice demos</li>
@@ -135,6 +155,11 @@ function PlanTab({ user }) {
           </div>
         )
       })}
+      {shouldBlur && (
+        <p className="font-mono text-xs text-slate-400 col-span-full">
+          Pricing is hidden during the beta period.
+        </p>
+      )}
     </div>
   )
 }
