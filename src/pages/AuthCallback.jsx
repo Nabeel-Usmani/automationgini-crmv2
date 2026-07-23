@@ -23,7 +23,7 @@ export default function AuthCallback() {
         {error ? (
           <>
             <p className="font-body text-white/80 mb-2">{error}</p>
-            <a href="https://automationgini-website.onrender.com/login" className="text-blue-light underline">
+            <a href="https://automationgini.com/login" className="text-blue-light underline">
               Back to login
             </a>
           </>
