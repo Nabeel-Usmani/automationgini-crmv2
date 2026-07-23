@@ -7,7 +7,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!getToken()) {
-      window.location.href = 'https://automationgini-website.onrender.com/login'
+      window.location.href = 'https://automationgini.com/login'
       return
     }
     getMe()
@@ -17,7 +17,7 @@ export default function Dashboard() {
 
   function handleLogout() {
     clearToken()
-    window.location.href = 'https://automationgini-website.onrender.com/login'
+    window.location.href = 'https://automationgini.com/login'
   }
 
   if (error) {
