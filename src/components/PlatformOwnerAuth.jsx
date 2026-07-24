@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getMe, getToken } from '../lib/api'
+import { getMe } from '../lib/api'
 import PlatformAdminLayout from './PlatformAdminLayout'
 
 export default function PlatformOwnerAuth({ children }) {
@@ -7,12 +7,12 @@ export default function PlatformOwnerAuth({ children }) {
   const [authError, setAuthError] = useState(null)
 
   useEffect(() => {
-    if (!getToken()) {
-      window.location.href = 'https://automationgini.com/login'
-      return
-    }
+    // No localStorage pre-check: a session may live entirely in the shared
+    // ag_session cookie set by the website on login. getMe() is the real
+    // check - apiFetch already redirects to login on a 401.
     getMe()
       .then((u) => {
+        if (!u) return
         if (!u.is_platform_owner) { setAuthError('Not authorized.'); return }
         setUser(u)
       })

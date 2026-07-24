@@ -5,7 +5,7 @@ import Sidebar from './Sidebar'
 import UserMenu from './UserMenu'
 import SurveyModal from './SurveyModal'
 import useInactivityTimeout from '../hooks/useInactivityTimeout'
-import { getMe, getToken, clearToken, apiFetch } from '../lib/api'
+import { getMe, clearToken, apiFetch, logoutRequest } from '../lib/api'
 
 export default function Layout({ children }) {
   const [user, setUser] = useState(null)
@@ -15,7 +15,8 @@ export default function Layout({ children }) {
   const location = useLocation()
   const navigate = useNavigate()
 
-  function performLogout() {
+  async function performLogout() {
+    await logoutRequest() // clears the HttpOnly session cookie server-side
     clearToken()
     window.location.href = 'https://automationgini.com/login'
   }
@@ -38,11 +39,17 @@ export default function Layout({ children }) {
   useInactivityTimeout(requestLogout, 20 * 60 * 1000)
 
   useEffect(() => {
-    if (!getToken()) {
-      window.location.href = 'https://automationgini.com/login'
-      return
-    }
+    // No localStorage pre-check here: a session may now live entirely in the
+    // shared ag_session cookie (set by the website on login), with nothing
+    // in localStorage at all. getMe() is the real check either way - if
+    // there's no valid session (cookie or token), apiFetch's 401 handling
+    // already redirects to login.
     getMe().then(async (u) => {
+      // apiFetch already redirects to login on a 401 and resolves this to
+      // null in that case - nothing left to do here, the navigation is
+      // already in flight.
+      if (!u) return
+
       // Platform owner always lands on the platform dashboard, regardless of
       // which role's login page or portal they came in through.
       if (u.is_platform_owner && !location.pathname.startsWith('/platform-owner')) {

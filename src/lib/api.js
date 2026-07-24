@@ -19,10 +19,14 @@ export async function apiFetch(path, options = {}) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   }
-  const resp = await fetch(`${API_BASE}${path}`, { ...options, headers })
+  // credentials: 'include' sends the shared ag_session cookie (set by the
+  // website on login) so a request authenticates even with no token in
+  // localStorage - the Authorization header above is still sent whenever a
+  // token IS present, so this doesn't change behavior for existing sessions.
+  const resp = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
   if (resp.status === 401) {
     clearToken()
-    window.location.href = 'https://automationgini-website.onrender.com/login'
+    window.location.href = 'https://automationgini.com/login'
     return null
   }
   if (!resp.ok) {
@@ -34,6 +38,15 @@ export async function apiFetch(path, options = {}) {
 
 export function getMe() {
   return apiFetch('/auth/me')
+}
+
+// The session cookie is HttpOnly (can't be cleared by client JS), so an
+// actual logout requires this call, not just clearToken(). Best-effort: if
+// the request fails, callers should still proceed with clearing local state
+// and redirecting - staying logged in due to a network blip is worse than a
+// cookie that outlives the intended session by a request or two.
+export function logoutRequest() {
+  return apiFetch('/auth/logout', { method: 'POST' }).catch(() => {})
 }
 
 export function getDashboardSummary(filters = {}) {

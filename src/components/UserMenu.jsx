@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { User, Settings, Package, CreditCard, LogOut } from 'lucide-react'
-import { clearToken } from '../lib/api'
+import { clearToken, logoutRequest } from '../lib/api'
 
 const MENU_ITEMS = [
   { label: 'Profile', tab: 'profile', icon: User },
@@ -27,13 +27,15 @@ export default function UserMenu({ user, onLogoutRequest }) {
     navigate(path)
   }
 
-  function logout() {
+  async function logout() {
     setOpen(false)
     if (onLogoutRequest) {
       onLogoutRequest()
     } else {
       // Fallback for pages that don't wire in the survey-aware logout flow
-      // (e.g. the Platform Admin dashboard) - behaves exactly as before.
+      // (e.g. the Platform Admin dashboard) - behaves exactly as before,
+      // now also clearing the shared HttpOnly session cookie server-side.
+      await logoutRequest()
       clearToken()
       window.location.href = 'https://automationgini.com/login'
     }
