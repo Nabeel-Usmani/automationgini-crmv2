@@ -49,8 +49,11 @@ export default function Sidebar({ user }) {
 
   return (
     <aside className="w-64 shrink-0 h-screen sticky top-0 bg-white border-r border-slate-200 flex flex-col">
-      <div className="px-5 py-5 border-b border-slate-200">
-        <img src="/logo.svg" alt="AutomationGini" className="h-7" />
+      <div className="px-5 py-5 border-b border-slate-200 flex items-center gap-2">
+        <img src="/logo-icon.png" alt="" className="h-7 w-auto" />
+        <span className="font-display font-semibold text-lg tracking-tight text-navy">
+          Automation<span className="text-amber">Gini</span>
+        </span>
       </div>
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         {sections.map((section) => {

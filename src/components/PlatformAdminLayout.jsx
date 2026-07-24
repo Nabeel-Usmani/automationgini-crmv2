@@ -12,8 +12,13 @@ export default function PlatformAdminLayout({ user, children }) {
     <div className="flex min-h-screen bg-slate-50">
       <aside className="w-60 bg-white border-r border-slate-200 flex flex-col shrink-0">
         <div className="px-5 py-5 border-b border-slate-200">
-          <img src="/logo.svg" alt="AutomationGini" className="h-6 mb-1" />
-          <p className="font-mono text-[11px] uppercase tracking-wide text-blue mt-0.5">Platform Admin</p>
+          <div className="flex items-center gap-2">
+            <img src="/logo-icon.png" alt="" className="h-6 w-auto" />
+            <span className="font-display font-semibold text-base tracking-tight text-navy">
+              Automation<span className="text-amber">Gini</span>
+            </span>
+          </div>
+          <p className="font-mono text-[11px] uppercase tracking-wide text-blue mt-1">Platform Admin</p>
         </div>
         <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV_ITEMS.map((item) => (
