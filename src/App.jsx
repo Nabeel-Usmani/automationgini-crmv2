@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { MessageCircle, Mail } from 'lucide-react'
 import AuthCallback from './pages/AuthCallback'
 import Home from './pages/Home'
 import Layout from './components/Layout'
@@ -34,8 +35,8 @@ export default function App() {
         <Route path="/platform-owner/agency-owners" element={<AgencyOwners />} />
         <Route path="/platform-owner/admin-settings" element={<AdminSettings />} />
         <Route path="/platform-admin" element={<Navigate to="/platform-owner" replace />} />
-        <Route path="/messenger" element={<Layout>{() => <ComingSoon icon="💬" title="Messenger" />}</Layout>} />
-        <Route path="/email-automation" element={<Layout>{() => <ComingSoon icon="✉️" title="Email Automation" />}</Layout>} />
+        <Route path="/messenger" element={<Layout>{() => <ComingSoon icon={MessageCircle} title="Messenger" />}</Layout>} />
+        <Route path="/email-automation" element={<Layout>{() => <ComingSoon icon={Mail} title="Email Automation" />}</Layout>} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
