@@ -1,7 +1,10 @@
-export default function EmptyState({ icon, title, subtitle, actionLabel, onAction }) {
+export default function EmptyState({ icon: Icon, title, subtitle, actionLabel, onAction }) {
+  const isComponent = typeof Icon === 'function'
   return (
     <div className="text-center py-16 px-6 bg-white border border-dashed border-slate-300 rounded-2xl">
-      <div className="text-4xl mb-3 opacity-60">{icon}</div>
+      <div className={`mb-3 flex items-center justify-center ${isComponent ? 'text-slate-300' : 'text-4xl opacity-60'}`}>
+        {isComponent ? <Icon size={36} strokeWidth={1.5} /> : Icon}
+      </div>
       <p className="font-body font-semibold text-navy mb-1">{title}</p>
       {subtitle && <p className="font-body text-sm text-slate max-w-md mx-auto mb-4">{subtitle}</p>}
       {actionLabel && (

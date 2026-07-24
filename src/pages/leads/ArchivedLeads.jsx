@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ArchiveRestore, Trash2, Archive } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import EmptyState from '../../components/EmptyState'
 
@@ -55,11 +56,11 @@ export default function ArchivedLeads() {
         <div className="flex items-center justify-between bg-navy text-white rounded-xl px-4 py-2.5 mb-4">
           <span className="text-sm font-semibold">{selectedIds.size} selected</span>
           <div className="flex items-center gap-2">
-            <button onClick={bulkUnarchive} className="text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5">
-              ↩️ Restore
+            <button onClick={bulkUnarchive} className="flex items-center gap-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5">
+              <ArchiveRestore size={13} /> Restore
             </button>
-            <button onClick={bulkDelete} className="text-xs font-semibold bg-red-500/80 hover:bg-red-500 rounded-lg px-3 py-1.5">
-              🗑️ Delete Permanently
+            <button onClick={bulkDelete} className="flex items-center gap-1.5 text-xs font-semibold bg-red-500/80 hover:bg-red-500 rounded-lg px-3 py-1.5">
+              <Trash2 size={13} /> Delete Permanently
             </button>
           </div>
         </div>
@@ -68,7 +69,7 @@ export default function ArchivedLeads() {
       {loading ? (
         <p className="font-body text-slate">Loading...</p>
       ) : leads.length === 0 ? (
-        <EmptyState icon="📦" title="No archived leads" subtitle="Leads you archive from Map Leads will show up here." />
+        <EmptyState icon={Archive} title="No archived leads" subtitle="Leads you archive from Map Leads will show up here." />
       ) : (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown, Check } from 'lucide-react'
 
 export default function FilterPopover({ label, options, selected, onChange }) {
   const [open, setOpen] = useState(false)
@@ -22,10 +23,10 @@ export default function FilterPopover({ label, options, selected, onChange }) {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between text-left bg-white border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-body text-navy hover:border-blue transition-colors"
+        className="w-full flex items-center justify-between text-left bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-body text-navy hover:border-blue transition-colors"
       >
         <span className="truncate">{label ? `${label}: ${summary}` : summary}</span>
-        <span className="text-slate-400 ml-2">▾</span>
+        <ChevronDown size={14} className="text-slate-400 ml-2 shrink-0" />
       </button>
 
       {open && (
@@ -45,9 +46,9 @@ export default function FilterPopover({ label, options, selected, onChange }) {
             {exactMatch && (
               <button
                 onClick={() => { onChange([exactMatch]); setOpen(false) }}
-                className="w-full text-xs font-semibold text-blue bg-blue/10 hover:bg-blue/20 rounded-lg py-1.5 mb-2"
+                className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-blue bg-blue/10 hover:bg-blue/20 rounded-lg py-1.5 mb-2"
               >
-                ✅ Show only "{exactMatch}"
+                <Check size={13} /> Show only "{exactMatch}"
               </button>
             )}
             <div className="max-h-56 overflow-y-auto space-y-1">

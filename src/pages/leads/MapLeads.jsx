@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Target, Archive, Trash2, Phone, Ban, Globe, Map as MapIcon } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import FilterPopover from '../../components/FilterPopover'
 import EmptyState from '../../components/EmptyState'
@@ -135,7 +136,7 @@ export default function MapLeads() {
             highPotentialOnly ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-white border border-slate-200 text-slate hover:border-amber-300'
           }`}
         >
-          🎯 High-Potential Only
+          <Target size={15} /> High-Potential Only
         </button>
         <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
       </div>
@@ -154,11 +155,11 @@ export default function MapLeads() {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={bulkArchive} className="text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5">
-              📦 Archive
+            <button onClick={bulkArchive} className="flex items-center gap-1.5 text-xs font-semibold bg-white/10 hover:bg-white/20 rounded-lg px-3 py-1.5">
+              <Archive size={13} /> Archive
             </button>
-            <button onClick={bulkDelete} className="text-xs font-semibold bg-red-500/80 hover:bg-red-500 rounded-lg px-3 py-1.5">
-              🗑️ Delete
+            <button onClick={bulkDelete} className="flex items-center gap-1.5 text-xs font-semibold bg-red-500/80 hover:bg-red-500 rounded-lg px-3 py-1.5">
+              <Trash2 size={13} /> Delete
             </button>
           </div>
         </div>
@@ -167,7 +168,7 @@ export default function MapLeads() {
       {loading ? (
         <p className="font-body text-slate">Loading...</p>
       ) : filtered.length === 0 ? (
-        <EmptyState icon="🗺️" title="No leads match your filters" subtitle="Try widening your filters, or run a new search." />
+        <EmptyState icon={MapIcon} title="No leads match your filters" subtitle="Try widening your filters, or run a new search." />
       ) : (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
@@ -243,7 +244,7 @@ export default function MapLeads() {
                   <td className="px-4 py-3.5">
                     <div className="flex items-center gap-2">
                       {lead.is_high_potential && (
-                        <span title="High potential: 1-15 reviews, under 4 stars" className="text-amber-500">🎯</span>
+                        <Target size={14} title="High potential: 1-15 reviews, under 4 stars" className="text-amber-500 shrink-0" />
                       )}
                       <div>
                         <p className="font-body font-semibold text-navy">{lead.business_name}</p>
@@ -264,7 +265,7 @@ export default function MapLeads() {
                         onClick={() => callLead(lead)}
                         className="flex items-center gap-1.5 font-body text-sm text-navy hover:text-blue transition-colors"
                       >
-                        📞 {lead.phone_number}
+                        <Phone size={13} /> {lead.phone_number}
                       </button>
                     ) : (
                       <span className="font-mono text-xs text-slate-300">—</span>
@@ -272,15 +273,17 @@ export default function MapLeads() {
                   </td>
                   <td className="px-4 py-3.5">
                     {lead.website_status === 'NO WEBSITE DETECTED' ? (
-                      <span className="text-xs font-semibold text-red-600 bg-red-50 rounded-full px-2.5 py-1">🚫 No Website</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-600 bg-red-50 rounded-full px-2.5 py-1">
+                        <Ban size={12} /> No Website
+                      </span>
                     ) : (
                       <a
                         href={lead.website}
                         target="_blank"
                         rel="noreferrer"
-                        className="font-body text-sm text-blue hover:underline"
+                        className="inline-flex items-center gap-1.5 font-body text-sm text-blue hover:underline"
                       >
-                        🌐 Visit site
+                        <Globe size={13} /> Visit site
                       </a>
                     )}
                   </td>
@@ -308,7 +311,7 @@ export default function MapLeads() {
                       title="Delete this lead"
                       className="text-slate-300 hover:text-red-600 transition-colors"
                     >
-                      🗑️
+                      <Trash2 size={15} />
                     </button>
                   </td>
                 </tr>
