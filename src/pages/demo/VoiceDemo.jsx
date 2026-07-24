@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, ClipboardList, Phone } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -55,8 +56,8 @@ export default function VoiceDemo() {
       </div>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Run New Demo</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Demos Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Run New Demo</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Demos Created</TabButton>
       </div>
 
       {tab === 'new' ? (
@@ -86,7 +87,7 @@ export default function VoiceDemo() {
           {status && <p className="font-body text-sm text-slate">{status}</p>}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="📞" title="No voice demos run yet" subtitle="Run one from the tab above to see it listed here." />
+        <EmptyState icon={Phone} title="No voice demos run yet" subtitle="Run one from the tab above to see it listed here." />
       ) : (
         <div className="space-y-3">
           {created.map((d) => (

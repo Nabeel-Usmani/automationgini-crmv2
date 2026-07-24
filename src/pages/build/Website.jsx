@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus, ClipboardList, Clapperboard, Pencil, Globe } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -17,7 +18,7 @@ const SUGGESTED_EXTRA_PAGES = ['Gallery', 'Pricing', 'Team', 'Blog', 'Testimonia
 const ARCHITECTURES = [
   { value: 'website_html', label: 'Normal Architecture', price: '$75' },
   { value: 'website_react', label: 'Modern Architecture', price: '$150' },
-  { value: 'website_react_video', label: '🎬 Modern Architecture + Embedded Video', price: '$150' },
+  { value: 'website_react_video', label: 'Modern Architecture + Embedded Video', price: '$150', icon: Clapperboard },
 ]
 
 function SiteCard({ site }) {
@@ -87,8 +88,8 @@ function SiteCard({ site }) {
         </div>
         <div className="flex items-center gap-2">
           <a href={`https://api.automationgini.com/preview?preview=${site.preview_token}&page=index`} target="_blank" rel="noreferrer" className="text-xs font-semibold text-blue bg-blue/10 rounded-lg px-3 py-1.5">View Live</a>
-          <button onClick={() => setExpanded((v) => !v)} className="text-xs font-semibold text-navy bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5">
-            {expanded ? 'Close' : '✏️ Request Change'}
+          <button onClick={() => setExpanded((v) => !v)} className="flex items-center gap-1.5 text-xs font-semibold text-navy bg-slate-100 hover:bg-slate-200 rounded-lg px-3 py-1.5">
+            {expanded ? 'Close' : <><Pencil size={12} /> Request Change</>}
           </button>
         </div>
       </div>
@@ -224,8 +225,8 @@ export default function BuildWebsite() {
       <p className="font-body text-slate mb-6">Deliver the real files once your client says yes to the free preview.</p>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Sites Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Sites Created</TabButton>
       </div>
 
       {tab === 'new' ? (
@@ -240,7 +241,10 @@ export default function BuildWebsite() {
                 <label key={a.value} className={`flex items-center justify-between border rounded-lg px-4 py-3 cursor-pointer transition-colors ${architecture === a.value ? 'border-blue bg-blue/5' : 'border-slate-200'}`}>
                   <span className="flex items-center gap-3">
                     <input type="radio" name="architecture" checked={architecture === a.value} onChange={() => setArchitecture(a.value)} className="accent-blue" />
-                    <span className="font-body text-sm text-navy">{a.label}</span>
+                    <span className="flex items-center gap-1.5 font-body text-sm text-navy">
+                      {a.icon && <a.icon size={14} className="text-slate-400" />}
+                      {a.label}
+                    </span>
                   </span>
                   <span className="font-mono text-sm text-slate">{a.price}</span>
                 </label>
@@ -327,7 +331,7 @@ export default function BuildWebsite() {
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="🌐" title="No websites built yet" subtitle="Once you build one for a client, it'll show up here." />
+        <EmptyState icon={Globe} title="No websites built yet" subtitle="Once you build one for a client, it'll show up here." />
       ) : (
         <div className="space-y-3">
           {created.map((s) => (

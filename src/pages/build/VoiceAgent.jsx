@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, ClipboardList, Bot, Phone } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -53,8 +54,8 @@ export default function BuildVoiceAgent() {
       <p className="font-body text-slate mb-6">A permanent, production-ready inbound AI receptionist — $50 one-time, client's own Vapi account.</p>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Agents Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Agents Created</TabButton>
       </div>
 
       {tab === 'new' ? (
@@ -88,7 +89,7 @@ export default function BuildVoiceAgent() {
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="🤖" title="No voice agents built yet" subtitle="Once you build one for a client, it'll show up here." />
+        <EmptyState icon={Bot} title="No voice agents built yet" subtitle="Once you build one for a client, it'll show up here." />
       ) : (
         <div className="space-y-3">
           {created.map((a) => (
@@ -96,7 +97,9 @@ export default function BuildVoiceAgent() {
               <p className="font-body font-semibold text-navy">{a.business_name}</p>
               <p className="font-body text-sm text-slate mb-2">{a.niche} · {a.city}</p>
               {a.fulfillment_detail?.vapi_phone_number && (
-                <p className="font-mono text-xs text-green-700">📞 Live: {a.fulfillment_detail.vapi_phone_number}</p>
+                <p className="flex items-center gap-1.5 font-mono text-xs text-green-700">
+                  <Phone size={11} /> Live: {a.fulfillment_detail.vapi_phone_number}
+                </p>
               )}
             </div>
           ))}

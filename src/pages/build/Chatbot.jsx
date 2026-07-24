@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, ClipboardList, MessageCircle } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -34,8 +35,8 @@ export default function BuildChatbot() {
       <p className="font-body text-slate mb-6">$29/month, 100 conversations included — works on sites we build or ones they already have.</p>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Chatbots Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Chatbots Created</TabButton>
       </div>
 
       {tab === 'new' ? (
@@ -47,7 +48,7 @@ export default function BuildChatbot() {
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="💬" title="No active chatbot subscriptions yet" subtitle="Once you build one for a client, it'll show up here." />
+        <EmptyState icon={MessageCircle} title="No active chatbot subscriptions yet" subtitle="Once you build one for a client, it'll show up here." />
       ) : (
         <div className="space-y-3">
           {created.map((c) => (

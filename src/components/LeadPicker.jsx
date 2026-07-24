@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link2, ChevronUp, ChevronDown, Map } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 
 export default function LeadPicker({ onSelect, requirePhone = false, onCustomListingCreated }) {
@@ -57,9 +58,9 @@ export default function LeadPicker({ onSelect, requirePhone = false, onCustomLis
     <div className="space-y-3">
       <button
         onClick={() => setShowCustom((s) => !s)}
-        className="text-sm font-body font-semibold text-navy bg-white border border-slate-200 rounded-lg px-3.5 py-2 hover:border-blue transition-colors"
+        className="flex items-center gap-1.5 text-sm font-body font-semibold text-navy bg-white border border-slate-200 rounded-lg px-3.5 py-2 hover:border-blue transition-colors"
       >
-        🔗 Add Custom Listing (any business URL) {showCustom ? '▴' : '▾'}
+        <Link2 size={14} /> Add Custom Listing (any business URL) {showCustom ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
 
       {showCustom && (
@@ -93,11 +94,11 @@ export default function LeadPicker({ onSelect, requirePhone = false, onCustomLis
           <button
             key={s}
             onClick={() => setSourceFilter(s)}
-            className={`text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
+            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-colors ${
               sourceFilter === s ? 'bg-navy text-white' : 'bg-slate-100 text-slate hover:bg-slate-200'
             }`}
           >
-            {s === 'all' ? 'All' : s === 'platform' ? '🗺️ Gini Leads' : '🔗 Custom Leads'}
+            {s === 'all' ? 'All' : s === 'platform' ? <><Map size={12} /> Gini Leads</> : <><Link2 size={12} /> Custom Leads</>}
           </button>
         ))}
       </div>

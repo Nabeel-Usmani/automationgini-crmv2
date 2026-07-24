@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus, ClipboardList, Clapperboard, ExternalLink, Globe } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -68,8 +69,8 @@ export default function WebsiteDemo() {
       </div>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New Demo</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Demos Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New Demo</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Demos Created</TabButton>
       </div>
 
       {tab === 'new' ? (
@@ -79,20 +80,22 @@ export default function WebsiteDemo() {
           <div className="flex gap-3">
             <button disabled={loading} onClick={() => buildPreview('website_html')} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Normal Architecture)</button>
             <button disabled={loading} onClick={() => buildPreview('website_react')} className="font-body font-semibold text-sm text-navy bg-white border border-slate-200 hover:border-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">Build Mockup (Modern Architecture)</button>
-            <button disabled={loading} onClick={() => buildPreview('website_react_video')} className="font-body font-semibold text-sm text-white bg-gradient-to-r from-navy to-blue hover:opacity-90 disabled:opacity-60 rounded-lg px-5 py-2.5 transition-opacity">🎬 Build Mockup (Modern Architecture + Embedded Video)</button>
+            <button disabled={loading} onClick={() => buildPreview('website_react_video')} className="flex items-center gap-2 font-body font-semibold text-sm text-white bg-gradient-to-r from-navy to-blue hover:opacity-90 disabled:opacity-60 rounded-lg px-5 py-2.5 transition-opacity">
+              <Clapperboard size={15} /> Build Mockup (Modern Architecture + Embedded Video)
+            </button>
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {progress && progress.fulfillment_status !== 'completed' && (
             <p className="font-mono text-xs text-slate-400">{progress.pages_done.length} / {progress.pages_total} pages generated so far...</p>
           )}
           {previewUrl && (
-            <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-block font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
-              🔗 Open Live Preview
+            <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
+              <ExternalLink size={15} /> Open Live Preview
             </a>
           )}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="🌐" title="No website previews built yet" subtitle="Build one from the tab above to see it listed here." />
+        <EmptyState icon={Globe} title="No website previews built yet" subtitle="Build one from the tab above to see it listed here." />
       ) : (
         <div className="space-y-3">
           {created.map((d) => (

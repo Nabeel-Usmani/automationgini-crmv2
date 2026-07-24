@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Plus, ClipboardList, Smartphone } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -52,16 +53,16 @@ export default function AppMockupDemo() {
       <p className="font-body text-slate mb-6">An interactive, phone-frame preview of what a real app for this business could look like.</p>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Mockups Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Mockups Created</TabButton>
       </div>
 
       {tab === 'new' ? (
         <div className="space-y-4">
           <LeadPicker onSelect={setSelectedLead} />
           {selectedLead && (
-            <button disabled={loading} onClick={buildMockup} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">
-              📱 Build App Mockup
+            <button disabled={loading} onClick={buildMockup} className="flex items-center gap-2 font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">
+              <Smartphone size={15} /> Build App Mockup
             </button>
           )}
           {status && <p className="font-body text-sm text-slate">{status}</p>}
@@ -72,7 +73,7 @@ export default function AppMockupDemo() {
           )}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="📱" title="No app mockups yet" subtitle="Once you build one for a client, it'll show up here." />
+        <EmptyState icon={Smartphone} title="No app mockups yet" subtitle="Once you build one for a client, it'll show up here." />
       ) : (
         <div className="space-y-3">
           {created.map((m) => (

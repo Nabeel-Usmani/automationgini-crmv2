@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, ClipboardList, MessageCircle, ExternalLink } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
@@ -50,25 +51,25 @@ export default function ChatbotDemo() {
       </div>
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'new'} onClick={() => setTab('new')}>🆕 Build New Demo</TabButton>
-        <TabButton active={tab === 'created'} onClick={() => setTab('created')}>📋 Demos Created</TabButton>
+        <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New Demo</TabButton>
+        <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Demos Created</TabButton>
       </div>
 
       {tab === 'new' ? (
         <div className="space-y-4">
           <LeadPicker onSelect={setSelectedLead} />
-          <button disabled={loading} onClick={buildDemo} className="font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">
-            💬 Start Chatbot Demo
+          <button disabled={loading} onClick={buildDemo} className="flex items-center gap-2 font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">
+            <MessageCircle size={15} /> Start Chatbot Demo
           </button>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {demoUrl && (
-            <a href={demoUrl} target="_blank" rel="noreferrer" className="inline-block font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
-              🔗 Open Demo (new tab)
+            <a href={demoUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
+              <ExternalLink size={15} /> Open Demo (new tab)
             </a>
           )}
         </div>
       ) : created.length === 0 ? (
-        <EmptyState icon="💬" title="No chatbot demos built yet" subtitle="Build one from the tab above to see it listed here." />
+        <EmptyState icon={MessageCircle} title="No chatbot demos built yet" subtitle="Build one from the tab above to see it listed here." />
       ) : (
         <div className="space-y-3">
           {created.map((d) => (
