@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ClipboardList, BarChart3, X } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 import PlatformOwnerAuth from '../components/PlatformOwnerAuth'
 import TabButton from '../components/TabButton'
@@ -67,7 +68,7 @@ function AgentsModal({ owner, onClose }) {
       <div className="bg-white rounded-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <p className="font-display font-semibold text-lg text-navy">Agents under {owner.full_name}</p>
-          <button onClick={onClose} className="text-slate text-xl leading-none">&times;</button>
+          <button onClick={onClose} className="text-slate hover:text-navy"><X size={18} /></button>
         </div>
         {!data ? (
           <p className="font-body text-sm text-slate">Loading...</p>
@@ -111,8 +112,8 @@ function AgencyOwnersContent() {
       <CreateOwnerForm onCreated={load} />
 
       <div className="flex gap-2 mb-5">
-        <TabButton active={tab === 'listing'} onClick={() => setTab('listing')}>📋 Agency Owner Listing</TabButton>
-        <TabButton active={tab === 'distribution'} onClick={() => setTab('distribution')}>📊 Agency Owner Distribution</TabButton>
+        <TabButton active={tab === 'listing'} onClick={() => setTab('listing')}><ClipboardList size={14} /> Agency Owner Listing</TabButton>
+        <TabButton active={tab === 'distribution'} onClick={() => setTab('distribution')}><BarChart3 size={14} /> Agency Owner Distribution</TabButton>
       </div>
 
       {loading ? (

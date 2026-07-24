@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { User, Settings, Package, CreditCard } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 import TabButton from '../components/TabButton'
 
@@ -14,10 +15,10 @@ export default function Account({ user }) {
       <p className="font-body text-slate mb-6">Manage your profile, plan, and billing.</p>
 
       <div className="flex gap-2 mb-6">
-        <TabButton active={tab === 'profile'} onClick={() => setTab('profile')}>👤 Profile</TabButton>
-        <TabButton active={tab === 'settings'} onClick={() => setTab('settings')}>⚙️ Settings</TabButton>
-        <TabButton active={tab === 'plan'} onClick={() => setTab('plan')}>📦 Plan</TabButton>
-        <TabButton active={tab === 'billing'} onClick={() => setTab('billing')}>💳 Billing Information</TabButton>
+        <TabButton active={tab === 'profile'} onClick={() => setTab('profile')}><User size={14} /> Profile</TabButton>
+        <TabButton active={tab === 'settings'} onClick={() => setTab('settings')}><Settings size={14} /> Settings</TabButton>
+        <TabButton active={tab === 'plan'} onClick={() => setTab('plan')}><Package size={14} /> Plan</TabButton>
+        <TabButton active={tab === 'billing'} onClick={() => setTab('billing')}><CreditCard size={14} /> Billing Information</TabButton>
       </div>
 
       {tab === 'profile' && <ProfileTab user={user} />}

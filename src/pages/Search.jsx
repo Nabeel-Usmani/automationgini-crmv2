@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Search as SearchIcon, X } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 
 export default function Search() {
@@ -129,7 +130,7 @@ export default function Search() {
               {selectedCities.map((c) => (
                 <span key={c} className="flex items-center gap-1.5 text-xs font-semibold text-navy bg-slate-100 rounded-full px-3 py-1">
                   {c}
-                  <button onClick={() => removeCity(c)} className="text-slate-400 hover:text-red-600">✕</button>
+                  <button onClick={() => removeCity(c)} className="text-slate-400 hover:text-red-600"><X size={12} /></button>
                 </span>
               ))}
             </div>
@@ -179,8 +180,8 @@ export default function Search() {
           <input type="range" min="20" max="100" step="20" value={maxLeads} onChange={(e) => setMaxLeads(Number(e.target.value))} className="w-full accent-blue" />
         </div>
 
-        <button disabled={loading} onClick={submit} className="w-full font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg py-3 transition-colors">
-          🔍 Run Search
+        <button disabled={loading} onClick={submit} className="w-full flex items-center justify-center gap-2 font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg py-3 transition-colors">
+          <SearchIcon size={16} /> Run Search
         </button>
         {status && <p className="font-body text-sm text-slate">{status}</p>}
       </div>
