@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { Menu } from 'lucide-react'
 import Sidebar from './Sidebar'
 import UserMenu from './UserMenu'
 import SurveyModal from './SurveyModal'
@@ -10,6 +11,7 @@ export default function Layout({ children }) {
   const [user, setUser] = useState(null)
   const [error, setError] = useState(null)
   const [surveyTrigger, setSurveyTrigger] = useState(null) // null | 'login' | 'logout'
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -76,9 +78,16 @@ export default function Layout({ children }) {
 
   return (
     <div className="flex min-h-screen bg-slate-50">
-      <Sidebar user={user} />
-      <div className="flex-1 flex flex-col">
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-end px-8 shrink-0">
+      <Sidebar user={user} mobileOpen={mobileNavOpen} onCloseMobile={() => setMobileNavOpen(false)} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between lg:justify-end px-4 sm:px-8 shrink-0">
+          <button
+            onClick={() => setMobileNavOpen(true)}
+            className="lg:hidden w-9 h-9 flex items-center justify-center text-slate-500 hover:text-navy -ml-1"
+            aria-label="Open menu"
+          >
+            <Menu size={20} />
+          </button>
           <UserMenu user={user} onLogoutRequest={requestLogout} />
         </header>
         <main className="flex-1">{typeof children === 'function' ? children(user) : children}</main>
