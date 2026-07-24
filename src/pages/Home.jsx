@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet'
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts'
+import { motion } from 'framer-motion'
+import { MapPin, Clapperboard, Phone, SlidersHorizontal, Map as MapIcon, BarChart3 } from 'lucide-react'
 import { getDashboardSummary, getFilterOptions, getCityCoordinates } from '../lib/api'
 import 'leaflet/dist/leaflet.css'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+}
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.07 } },
+}
 
 export default function Home({ user }) {
   const [filters, setFilters] = useState({ date_from: '', date_to: '', niche: '', country: '', city: '' })
@@ -62,59 +73,75 @@ export default function Home({ user }) {
   const mapCenter = mapPoints.length ? [mapPoints[0].lat, mapPoints[0].lng] : [20, 0]
 
   return (
-    <div className="max-w-6xl mx-auto px-8 py-8">
-      <h1 className="font-display font-semibold text-2xl text-navy mb-1">
-        {user?.role === 'agent' ? 'Your Overview' : 'Overview'}
-      </h1>
-      <p className="font-body text-slate mb-6">
-        {user?.role === 'agent' ? 'Your own activity across leads, demos, and calls.' : 'Everything across your account.'}
-      </p>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={stagger}
+      className="max-w-6xl mx-auto px-8 py-8"
+    >
+      <motion.div variants={fadeUp}>
+        <h1 className="font-display font-semibold text-2xl text-navy mb-1">
+          {user?.role === 'agent' ? 'Your Overview' : 'Overview'}
+        </h1>
+        <p className="font-body text-slate mb-6">
+          {user?.role === 'agent' ? 'Your own activity across leads, demos, and calls.' : 'Everything across your account.'}
+        </p>
+      </motion.div>
 
       {/* Filters */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 mb-6 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <div>
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">From</label>
-          <input type="date" value={filters.date_from} onChange={update('date_from')} className="w-full text-sm border border-slate-200 rounded-lg px-2.5 py-2 font-body" />
+      <motion.div variants={fadeUp} className="bg-white border border-slate-200 rounded-2xl p-5 mb-6">
+        <div className="flex items-center gap-1.5 mb-4">
+          <SlidersHorizontal size={14} className="text-slate-400" />
+          <span className="font-mono text-[11px] uppercase tracking-wide text-slate-400">Filters</span>
         </div>
-        <div>
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">To</label>
-          <input type="date" value={filters.date_to} onChange={update('date_to')} className="w-full text-sm border border-slate-200 rounded-lg px-2.5 py-2 font-body" />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">From</label>
+            <input type="date" value={filters.date_from} onChange={update('date_from')} className="w-full text-sm border border-slate-200 rounded-xl px-2.5 py-2 font-body focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-shadow" />
+          </div>
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">To</label>
+            <input type="date" value={filters.date_to} onChange={update('date_to')} className="w-full text-sm border border-slate-200 rounded-xl px-2.5 py-2 font-body focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-shadow" />
+          </div>
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Niche</label>
+            <select value={filters.niche} onChange={update('niche')} className="w-full text-sm border border-slate-200 rounded-xl px-2.5 py-2 font-body focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-shadow">
+              <option value="">All</option>
+              {options.niches.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Country</label>
+            <select value={filters.country} onChange={update('country')} className="w-full text-sm border border-slate-200 rounded-xl px-2.5 py-2 font-body focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-shadow">
+              <option value="">All</option>
+              {options.countries.map((c) => <option key={c.country} value={c.country}>{c.country}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">City</label>
+            <select value={filters.city} onChange={update('city')} className="w-full text-sm border border-slate-200 rounded-xl px-2.5 py-2 font-body focus:outline-none focus:ring-2 focus:ring-blue/20 focus:border-blue transition-shadow">
+              <option value="">All</option>
+              {options.cities.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Niche</label>
-          <select value={filters.niche} onChange={update('niche')} className="w-full text-sm border border-slate-200 rounded-lg px-2.5 py-2 font-body">
-            <option value="">All</option>
-            {options.niches.map((n) => <option key={n} value={n}>{n}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Country</label>
-          <select value={filters.country} onChange={update('country')} className="w-full text-sm border border-slate-200 rounded-lg px-2.5 py-2 font-body">
-            <option value="">All</option>
-            {options.countries.map((c) => <option key={c.country} value={c.country}>{c.country}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">City</label>
-          <select value={filters.city} onChange={update('city')} className="w-full text-sm border border-slate-200 rounded-lg px-2.5 py-2 font-body">
-            <option value="">All</option>
-            {options.cities.map((c) => <option key={c.city} value={c.city}>{c.city}</option>)}
-          </select>
-        </div>
-      </div>
+      </motion.div>
 
       {/* Metric cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <MetricCard label="Leads Extracted" value={summary?.leads_extracted} loading={loading} icon="🗺️" />
-        <MetricCard label="Demos Created" value={summary?.demos_created} loading={loading} icon="🎬" />
-        <MetricCard label="Calls Made" value={summary?.calls_made} loading={loading} icon="📞" />
-      </div>
+      <motion.div variants={stagger} className="grid grid-cols-3 gap-4 mb-6">
+        <MetricCard label="Leads Extracted" value={summary?.leads_extracted} loading={loading} icon={MapPin} tint="blue" />
+        <MetricCard label="Demos Created" value={summary?.demos_created} loading={loading} icon={Clapperboard} tint="amber" />
+        <MetricCard label="Calls Made" value={summary?.calls_made} loading={loading} icon={Phone} tint="navy" />
+      </motion.div>
 
-      <div className="grid md:grid-cols-2 gap-5">
+      <motion.div variants={fadeUp} className="grid md:grid-cols-2 gap-5">
         {/* Map */}
         <div className="bg-white border border-slate-200 rounded-2xl p-4 overflow-hidden">
           <div className="flex items-center justify-between mb-3">
-            <p className="font-body font-semibold text-sm text-navy">Leads by Location</p>
+            <p className="font-body font-semibold text-sm text-navy flex items-center gap-1.5">
+              <MapIcon size={15} className="text-slate-400" />
+              Leads by Location
+            </p>
             {selectedCities !== null && (
               <button onClick={() => setSelectedCities(null)} className="text-xs font-semibold text-blue hover:underline">
                 Show all
@@ -151,7 +178,10 @@ export default function Home({ user }) {
 
         {/* Bar chart */}
         <div className="bg-white border border-slate-200 rounded-2xl p-4">
-          <p className="font-body font-semibold text-sm text-navy mb-3">Top Cities <span className="font-body font-normal text-xs text-slate-400">(click to highlight on map)</span></p>
+          <p className="font-body font-semibold text-sm text-navy mb-3 flex items-center gap-1.5">
+            <BarChart3 size={15} className="text-slate-400" />
+            Top Cities <span className="font-body font-normal text-xs text-slate-400">(click to highlight on map)</span>
+          </p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={cityLeadCounts.slice(0, 8)} layout="vertical" margin={{ left: 20 }}>
@@ -173,21 +203,34 @@ export default function Home({ user }) {
             </ResponsiveContainer>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 
-function MetricCard({ label, value, loading, icon }) {
+const TINTS = {
+  blue: 'bg-blue/10 text-blue',
+  amber: 'bg-amber/10 text-amber-600',
+  navy: 'bg-navy/10 text-navy',
+}
+
+function MetricCard({ label, value, loading, icon: Icon, tint }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5">
-      <div className="flex items-center justify-between mb-2">
+    <motion.div
+      variants={fadeUp}
+      whileHover={{ y: -3 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+      className="bg-white border border-slate-200 rounded-2xl p-5"
+    >
+      <div className="flex items-center justify-between mb-3">
         <span className="font-mono text-[11px] uppercase tracking-wide text-slate-400">{label}</span>
-        <span>{icon}</span>
+        <span className={`w-7 h-7 rounded-lg flex items-center justify-center ${TINTS[tint]}`}>
+          <Icon size={14} strokeWidth={2.25} />
+        </span>
       </div>
       <p className="font-display font-semibold text-3xl text-navy">
         {loading ? '—' : (value ?? 0)}
       </p>
-    </div>
+    </motion.div>
   )
 }
