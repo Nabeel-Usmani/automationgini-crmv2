@@ -31,6 +31,7 @@ const NAV_SECTIONS = [
       { label: 'Voice Agent', path: '/build/voice' },
       { label: 'Website', path: '/build/website' },
       { label: 'Chatbot', path: '/build/chatbot' },
+      { label: 'Business CRM', path: '/build/business-crm' },
     ],
   },
   { label: 'Run New Search', icon: Search, path: '/search', flat: true },

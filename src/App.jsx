@@ -14,6 +14,7 @@ import AppMockupDemo from './pages/demo/AppMockupDemo'
 import BuildVoiceAgent from './pages/build/VoiceAgent'
 import BuildWebsite from './pages/build/Website'
 import BuildChatbot from './pages/build/Chatbot'
+import BuildBusinessCrm from './pages/build/BusinessCrm'
 import Search from './pages/Search'
 import Billing from './pages/Billing'
 import PlatformOwnerDashboard from './pages/PlatformOwnerDashboard'
@@ -64,6 +65,7 @@ export default function App() {
         <Route path="/build/voice" element={wrap(BuildVoiceAgent)} />
         <Route path="/build/website" element={wrap(BuildWebsite)} />
         <Route path="/build/chatbot" element={wrap(BuildChatbot)} />
+        <Route path="/build/business-crm" element={wrap(BuildBusinessCrm)} />
         <Route path="/search" element={wrap(Search)} />
         <Route path="/billing" element={wrap(Billing)} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
