@@ -154,12 +154,17 @@ export default function BuildBusinessCrm() {
             {demoStatus && <p className="font-body text-sm text-slate mt-3">{demoStatus}</p>}
             {demoResult && (
               <div className="mt-4 pt-4 border-t border-slate-100 space-y-1">
-                <p className="font-body text-sm font-semibold text-navy">Demo ready!</p>
+                <p className="font-body text-sm font-semibold text-navy mb-1">Demo ready!</p>
                 {demoResult.slug && <BookingLink slug={demoResult.slug} />}
                 {demoResult.portal_login_url && (
                   <a href={demoResult.portal_login_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-semibold text-blue hover:underline">
                     <ExternalLink size={12} /> Staff portal login
                   </a>
+                )}
+                {demoResult.staff_email && (
+                  <p className="font-mono text-xs text-slate mt-2">
+                    Login: {demoResult.staff_email} / {demoResult.staff_password}
+                  </p>
                 )}
               </div>
             )}
@@ -232,7 +237,7 @@ export default function BuildBusinessCrm() {
           </div>
 
           <button onClick={submit} className="w-full font-body font-semibold text-sm text-white bg-navy hover:bg-blue rounded-lg py-3 transition-colors">
-            Continue to Checkout
+            Continue to Checkout — $199
           </button>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {checkoutUrl && <a href={checkoutUrl} className="inline-block font-body font-semibold text-sm text-white bg-blue rounded-lg px-5 py-2.5">Proceed to Payment →</a>}
