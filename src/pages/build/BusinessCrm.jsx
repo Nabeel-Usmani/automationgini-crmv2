@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Plus, ClipboardList, Calendar, Trash2, Copy, Check, ExternalLink, Sparkles } from 'lucide-react'
+import { Plus, ClipboardList, Calendar, Trash2 } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
 import TabButton from '../../components/TabButton'
+import BookingLink from '../../components/BookingLink'
 
 const TIMEZONES = [
   'America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles',
@@ -11,33 +12,6 @@ const TIMEZONES = [
   'Europe/Berlin', 'Asia/Dubai', 'Asia/Kolkata', 'Asia/Singapore',
   'Australia/Sydney', 'UTC',
 ]
-
-function BookingLink({ slug }) {
-  const [copied, setCopied] = useState(false)
-  const url = `https://automationgini.com/book/${slug}`
-
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1500)
-    } catch {
-      // Clipboard access can be blocked in some contexts - the link is still
-      // visible and selectable, so this is a nicety, not a hard requirement.
-    }
-  }
-
-  return (
-    <div className="flex items-center gap-2">
-      <a href={url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-semibold text-blue hover:underline">
-        <ExternalLink size={12} /> {url}
-      </a>
-      <button onClick={copy} className="text-slate-400 hover:text-navy">
-        {copied ? <Check size={13} /> : <Copy size={13} />}
-      </button>
-    </div>
-  )
-}
 
 export default function BuildBusinessCrm() {
   const [tab, setTab] = useState('new')
@@ -51,30 +25,7 @@ export default function BuildBusinessCrm() {
   const [checkoutUrl, setCheckoutUrl] = useState('')
   const [created, setCreated] = useState([])
 
-  const [demoLead, setDemoLead] = useState(null)
-  const [demoStatus, setDemoStatus] = useState('')
-  const [demoRunning, setDemoRunning] = useState(false)
-  const [demoResult, setDemoResult] = useState(null)
-  const [demos, setDemos] = useState([])
-
   useEffect(() => { apiFetch('/build/business-crm/created').then(setCreated).catch(() => {}) }, [tab])
-  useEffect(() => { if (tab === 'demo') apiFetch('/demo/business-crm/created').then(setDemos).catch(() => {}) }, [tab])
-
-  async function runDemo() {
-    if (!demoLead) { setDemoStatus('Select a lead first.'); return }
-    setDemoRunning(true)
-    setDemoStatus('')
-    setDemoResult(null)
-    try {
-      const result = await apiFetch('/demo/business-crm', { method: 'POST', body: JSON.stringify({ lead_id: demoLead.id }) })
-      setDemoResult(result)
-      apiFetch('/demo/business-crm/created').then(setDemos).catch(() => {})
-    } catch (e) {
-      setDemoStatus(e.message)
-    } finally {
-      setDemoRunning(false)
-    }
-  }
 
   function handleSelectLead(lead) {
     setSelectedLead(lead)
@@ -135,57 +86,12 @@ export default function BuildBusinessCrm() {
 
       <div className="flex gap-2 mb-5">
         <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
-        <TabButton active={tab === 'demo'} onClick={() => setTab('demo')}><Sparkles size={14} /> Try a Demo</TabButton>
         <TabButton active={tab === 'created'} onClick={() => setTab('created')}><ClipboardList size={14} /> Businesses Created</TabButton>
       </div>
 
-      {tab === 'demo' ? (
+      {tab === 'new' ? (
         <div className="space-y-4">
-          <LeadPicker key="demo" onSelect={setDemoLead} />
-          <div className="bg-white border border-slate-200 rounded-2xl p-5">
-            <p className="font-body font-semibold text-navy mb-1">Instant Free Demo</p>
-            <p className="font-body text-xs text-slate-400 mb-3">
-              Spins up a real, working staff portal and public booking page pre-loaded with sample data - show the
-              prospect exactly what they'd get before asking them to buy. No charge, no setup required from them.
-            </p>
-            <button onClick={runDemo} disabled={demoRunning} className="flex items-center gap-1.5 font-body font-semibold text-sm text-white bg-navy hover:bg-blue disabled:opacity-60 rounded-lg px-5 py-2.5 transition-colors">
-              <Sparkles size={14} /> {demoRunning ? 'Creating demo...' : 'Create Live Demo'}
-            </button>
-            {demoStatus && <p className="font-body text-sm text-slate mt-3">{demoStatus}</p>}
-            {demoResult && (
-              <div className="mt-4 pt-4 border-t border-slate-100 space-y-1">
-                <p className="font-body text-sm font-semibold text-navy mb-1">Demo ready!</p>
-                {demoResult.slug && <BookingLink slug={demoResult.slug} />}
-                {demoResult.portal_login_url && (
-                  <a href={demoResult.portal_login_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-xs font-semibold text-blue hover:underline">
-                    <ExternalLink size={12} /> Staff portal login
-                  </a>
-                )}
-                {demoResult.staff_email && (
-                  <p className="font-mono text-xs text-slate mt-2">
-                    Login: {demoResult.staff_email} / {demoResult.staff_password}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {demos.length > 0 && (
-            <div className="space-y-3">
-              <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400">Previous Demos</p>
-              {demos.map((w) => (
-                <div key={w.id} className="bg-white border border-slate-200 rounded-2xl p-4">
-                  <p className="font-body font-semibold text-navy">{w.business_name}</p>
-                  <p className="font-body text-sm text-slate mb-2">{w.lead_business_name}</p>
-                  <BookingLink slug={w.slug} />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : tab === 'new' ? (
-        <div className="space-y-4">
-          <LeadPicker key="new" onSelect={handleSelectLead} />
+          <LeadPicker onSelect={handleSelectLead} />
 
           <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
             <p className="font-body font-semibold text-navy mb-1">Business Details</p>

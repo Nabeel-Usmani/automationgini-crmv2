@@ -23,6 +23,7 @@ const NAV_SECTIONS = [
       { label: 'Website Mockup', path: '/demo/website' },
       { label: 'Chatbot Demo', path: '/demo/chatbot' },
       { label: 'App Mockup', path: '/demo/app-mockup' },
+      { label: 'Business CRM', path: '/demo/business-crm' },
     ],
   },
   {
