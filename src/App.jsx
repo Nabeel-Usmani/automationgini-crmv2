@@ -21,6 +21,12 @@ import AgencyOwners from './pages/AgencyOwners'
 import AdminSettings from './pages/AdminSettings'
 import ComingSoon from './pages/ComingSoon'
 import ChatWidget from './components/ChatWidget'
+import PortalLogin from './portal/PortalLogin'
+import PortalSetPassword from './portal/PortalSetPassword'
+import PortalAuthGate from './portal/PortalAuthGate'
+import PortalAgenda from './portal/PortalAgenda'
+import PortalServices from './portal/PortalServices'
+import PortalAvailability from './portal/PortalAvailability'
 
 function wrap(Component) {
   return <Layout>{(user) => <Component user={user} />}</Layout>
@@ -30,6 +36,15 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Client-business staff portal - a separate login/identity from the
+            agency routes below, gated by its own ag_portal_session cookie. */}
+        <Route path="/portal/login" element={<PortalLogin />} />
+        <Route path="/portal/set-password" element={<PortalSetPassword />} />
+        <Route path="/portal/agenda" element={<PortalAuthGate>{(staff) => <PortalAgenda staff={staff} />}</PortalAuthGate>} />
+        <Route path="/portal/services" element={<PortalAuthGate><PortalServices /></PortalAuthGate>} />
+        <Route path="/portal/availability" element={<PortalAuthGate><PortalAvailability /></PortalAuthGate>} />
+        <Route path="/portal" element={<Navigate to="/portal/agenda" replace />} />
+
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/platform-owner" element={<PlatformOwnerDashboard />} />
         <Route path="/platform-owner/agency-owners" element={<AgencyOwners />} />
