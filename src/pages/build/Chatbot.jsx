@@ -1,9 +1,66 @@
 import { useEffect, useState } from 'react'
-import { Plus, ClipboardList, MessageCircle } from 'lucide-react'
+import { Plus, ClipboardList, MessageCircle, CalendarClock, Check } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import LeadPicker from '../../components/LeadPicker'
 import EmptyState from '../../components/EmptyState'
 import TabButton from '../../components/TabButton'
+
+function CalendlyConnect({ chatbotConfigId }) {
+  const [state, setState] = useState(null) // null while loading, then { connected, scheduling_url }
+  const [busy, setBusy] = useState(false)
+
+  useEffect(() => {
+    apiFetch(`/calendly/status?chatbot_config_id=${chatbotConfigId}`).then(setState).catch(() => setState({ connected: false }))
+  }, [chatbotConfigId])
+
+  async function startConnect() {
+    setBusy(true)
+    try {
+      const { authorize_url } = await apiFetch(`/calendly/connect?chatbot_config_id=${chatbotConfigId}`)
+      window.location.href = authorize_url
+    } catch (e) {
+      setBusy(false)
+      alert(e.message || 'Could not start Calendly connection.')
+    }
+  }
+
+  async function disconnect() {
+    setBusy(true)
+    try {
+      await apiFetch('/calendly/disconnect', { method: 'POST', body: JSON.stringify({ chatbot_config_id: chatbotConfigId }) })
+      setState({ connected: false })
+    } catch (e) {
+      alert(e.message || 'Could not disconnect.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (!state) return null
+
+  if (state.connected) {
+    return (
+      <div className="flex items-center gap-2 mt-2">
+        <span className="inline-flex items-center gap-1 font-body text-xs font-semibold text-green-700 bg-green-100 rounded-full px-2.5 py-1">
+          <Check size={12} /> Calendly connected
+        </span>
+        <button onClick={disconnect} disabled={busy} className="font-body text-xs text-slate-400 hover:text-red-600 underline disabled:opacity-50">
+          Disconnect
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <button
+      onClick={startConnect}
+      disabled={busy}
+      className="inline-flex items-center gap-1.5 mt-2 font-body font-semibold text-xs text-navy bg-slate-100 hover:bg-slate-200 rounded-full px-3 py-1.5 transition-colors disabled:opacity-50"
+    >
+      <CalendarClock size={13} /> {busy ? 'Connecting...' : "Connect this business's Calendly"}
+    </button>
+  )
+}
 
 export default function BuildChatbot() {
   const [tab, setTab] = useState('new')
@@ -12,8 +69,20 @@ export default function BuildChatbot() {
   const [status, setStatus] = useState('')
   const [checkoutUrl, setCheckoutUrl] = useState('')
   const [created, setCreated] = useState([])
+  const [calendlyNotice, setCalendlyNotice] = useState('')
 
   useEffect(() => { apiFetch('/build/chatbot/created').then(setCreated).catch(() => {}) }, [tab])
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const calendly = params.get('calendly')
+    if (calendly === 'connected') setCalendlyNotice('Calendly connected successfully.')
+    else if (calendly === 'error') setCalendlyNotice('Calendly connection failed - please try again.')
+    if (calendly) {
+      setTab('created')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
+  }, [])
 
   async function submit() {
     if (!selectedLead) return
@@ -33,6 +102,10 @@ export default function BuildChatbot() {
     <div className="max-w-4xl mx-auto px-8 py-8">
       <h1 className="font-display font-semibold text-2xl text-navy mb-1">Build My Chatbot</h1>
       <p className="font-body text-slate mb-6">$29/month, 100 conversations included — works on sites we build or ones they already have.</p>
+
+      {calendlyNotice && (
+        <p className="font-body text-sm text-navy bg-ice rounded-lg px-4 py-2.5 mb-4">{calendlyNotice}</p>
+      )}
 
       <div className="flex gap-2 mb-5">
         <TabButton active={tab === 'new'} onClick={() => setTab('new')}><Plus size={14} /> Build New</TabButton>
@@ -58,6 +131,7 @@ export default function BuildChatbot() {
               <code className="block bg-slate-50 rounded-lg p-2 text-xs font-mono overflow-x-auto">
                 {`<script src="https://crm-leads-enterprise.onrender.com/chatbot-widget.js" data-chatbot-token="${c.chatbot_token}"></script>`}
               </code>
+              <CalendlyConnect chatbotConfigId={c.id} />
             </div>
           ))}
         </div>
