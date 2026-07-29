@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Star } from 'lucide-react'
 import { apiFetch } from '../lib/api'
 
 const RATING_LABELS = ['Poor', 'Fair', 'Good', 'Very good', 'Excellent']
@@ -26,10 +27,42 @@ function ScaleInput({ value, onChange, labels }) {
   )
 }
 
+function StarRating({ value, onChange, labels }) {
+  const [hovered, setHovered] = useState(null)
+  const shown = hovered ?? value
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n)}
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(null)}
+          title={labels[n - 1]}
+          aria-label={`${n} star${n > 1 ? 's' : ''} - ${labels[n - 1]}`}
+          className="p-1 -m-1"
+        >
+          <Star
+            size={30}
+            strokeWidth={1.5}
+            className={shown && n <= shown ? 'fill-amber text-amber' : 'fill-transparent text-slate-300'}
+          />
+        </button>
+      ))}
+      {shown ? (
+        <span className="font-body text-xs text-slate ml-2">{labels[shown - 1]}</span>
+      ) : null}
+    </div>
+  )
+}
+
 export default function SurveyModal({ trigger, onComplete }) {
   const [rating, setRating] = useState(null)
   const [likelyToReuse, setLikelyToReuse] = useState(null)
   const [willingnessToPay, setWillingnessToPay] = useState('')
+  const [suggestions, setSuggestions] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -50,6 +83,7 @@ export default function SurveyModal({ trigger, onComplete }) {
           rating,
           likely_to_reuse: likelyToReuse,
           willingness_to_pay: willingnessToPay ? parseFloat(willingnessToPay) : null,
+          suggestions: suggestions.trim() || null,
         }),
       })
       onComplete()
@@ -69,15 +103,15 @@ export default function SurveyModal({ trigger, onComplete }) {
           Help us improve AutomationGini
         </h2>
         <p className="font-body text-sm text-slate mb-6">
-          Three quick questions — this helps us build the right thing.
+          A few quick questions — this helps us build the right thing.
         </p>
 
         <div className="space-y-5">
           <div>
             <p className="font-body font-semibold text-sm text-navy mb-2">
-              How would you rate AutomationGini so far?
+              How much would you rate this product?
             </p>
-            <ScaleInput value={rating} onChange={setRating} labels={RATING_LABELS} />
+            <StarRating value={rating} onChange={setRating} labels={RATING_LABELS} />
           </div>
 
           <div>
@@ -89,7 +123,7 @@ export default function SurveyModal({ trigger, onComplete }) {
 
           <div>
             <p className="font-body font-semibold text-sm text-navy mb-2">
-              What would you be willing to pay per month for this? (optional)
+              How much are you willing to pay for this product? (optional)
             </p>
             <div className="flex items-center gap-2">
               <span className="font-body text-slate">$</span>
@@ -98,10 +132,23 @@ export default function SurveyModal({ trigger, onComplete }) {
                 min="0"
                 value={willingnessToPay}
                 onChange={(e) => setWillingnessToPay(e.target.value)}
-                placeholder="e.g. 50"
+                placeholder="e.g. 50 / month"
                 className="flex-1 border border-slate-200 rounded-lg px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-blue/30"
               />
             </div>
+          </div>
+
+          <div>
+            <p className="font-body font-semibold text-sm text-navy mb-2">
+              Any additional suggestions? (optional)
+            </p>
+            <textarea
+              value={suggestions}
+              onChange={(e) => setSuggestions(e.target.value)}
+              placeholder="Anything you'd like to see, or feedback for us..."
+              rows={3}
+              className="w-full border border-slate-200 rounded-lg px-3 py-2 font-body text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue/30"
+            />
           </div>
         </div>
 

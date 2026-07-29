@@ -62,6 +62,9 @@ function SidebarContent({ user, onNavigate }) {
         <span className="font-display font-semibold text-lg tracking-tight text-navy">
           Automation<span className="text-amber">Gini</span>
         </span>
+        <span className="font-mono text-[10px] font-semibold uppercase tracking-wide text-amber-700 bg-amber-100 rounded-full px-2 py-0.5">
+          Beta
+        </span>
       </div>
       <nav className="flex-1 overflow-y-auto py-3 px-3 space-y-1">
         {sections.map((section) => {
