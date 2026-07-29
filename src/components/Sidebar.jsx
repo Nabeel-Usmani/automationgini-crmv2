@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Home, Map, Clapperboard, Hammer, Search, MessageCircle, Mail,
+  Home, Map, Clapperboard, Hammer, Search, MessageCircle, Mail, Share2,
   Users, Shield, ChevronRight, Rocket, X,
 } from 'lucide-react'
 
@@ -38,6 +38,7 @@ const NAV_SECTIONS = [
   { label: 'Run New Search', icon: Search, path: '/search', flat: true },
   { label: 'Messenger', icon: MessageCircle, path: '/messenger', flat: true, comingSoon: true },
   { label: 'Email Automation', icon: Mail, path: '/email-automation', flat: true, comingSoon: true },
+  { label: 'Social Media Automation', icon: Share2, path: '/social-media-automation', flat: true, comingSoon: true },
 ]
 
 function SidebarContent({ user, onNavigate }) {
