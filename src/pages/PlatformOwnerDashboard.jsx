@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer } from 'recharts'
 import { apiFetch } from '../lib/api'
 import PlatformOwnerAuth from '../components/PlatformOwnerAuth'
 import { countryCentroid } from '../lib/countryCentroids'
+
+// Sequential blue ramp, light -> dark: rating 1 (worst) is the lightest step,
+// rating 5 (best) the darkest. One hue for an ordinal magnitude scale, per the
+// dataviz color rules - never a rainbow across rating levels.
+const RATING_RAMP = ['#86b6ef', '#5598e7', '#2a78d6', '#1c5cab', '#104281']
 
 function StatCard({ label, value, sub, live }) {
   return (
@@ -44,16 +49,89 @@ function CountryMap({ title, points, color }) {
   )
 }
 
-function SurveyResultsTable() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+function SurveyByCountryChart({ rows }) {
+  const pivot = {}
+  rows.forEach((r) => {
+    const key = r.country_name || 'Unknown'
+    if (!pivot[key]) {
+      pivot[key] = { country: key, country_code: r.country_code, r1: 0, r2: 0, r3: 0, r4: 0, r5: 0, total: 0 }
+    }
+    pivot[key][`r${r.rating}`] = r.n
+    pivot[key].total += r.n
+  })
+  const chartData = Object.values(pivot).sort((a, b) => b.total - a.total)
 
-  useEffect(() => {
-    apiFetch('/survey/results').then(setData).catch(() => {}).finally(() => setLoading(false))
-  }, [])
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden mb-8">
+      <div className="px-5 py-4 border-b border-slate-100">
+        <p className="font-body font-semibold text-navy">Survey Ratings by Country</p>
+        <p className="font-body text-xs text-slate-400 mt-0.5">How many users voted what, and from where — at a glance.</p>
+      </div>
 
-  if (loading) return null
+      {chartData.length === 0 ? (
+        <p className="font-body text-sm text-slate-400 px-5 py-8 text-center">No survey responses yet.</p>
+      ) : (
+        <>
+          <div className="p-4" style={{ height: Math.max(180, chartData.length * 44 + 60) }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData} layout="vertical" margin={{ left: 10, top: 4, bottom: 4 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                <XAxis type="number" tick={{ fontSize: 11 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="country" tick={{ fontSize: 11 }} width={110} />
+                <ChartTooltip
+                  formatter={(value, name) => [value, name]}
+                  labelFormatter={(label) => label}
+                />
+                <Legend
+                  formatter={(value) => <span className="font-body text-xs text-slate">{value}</span>}
+                  wrapperStyle={{ fontSize: 11 }}
+                />
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <Bar
+                    key={n}
+                    dataKey={`r${n}`}
+                    name={`${n}★`}
+                    stackId="ratings"
+                    fill={RATING_RAMP[n - 1]}
+                    radius={n === 5 ? [0, 4, 4, 0] : [0, 0, 0, 0]}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
+          {/* Pivot table - exact counts backing the chart above */}
+          <div className="overflow-x-auto border-t border-slate-100">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50">
+                  <th className="text-left font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Country</th>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <th key={n} className="text-right font-mono text-[11px] uppercase tracking-wide text-slate-500 px-3 py-2.5">{n}★</th>
+                  ))}
+                  <th className="text-right font-mono text-[11px] uppercase tracking-wide text-slate-500 px-4 py-2.5">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {chartData.map((row) => (
+                  <tr key={row.country} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60">
+                    <td className="px-4 py-2.5 font-body text-navy">{row.country}</td>
+                    {[1, 2, 3, 4, 5].map((n) => (
+                      <td key={n} className="px-3 py-2.5 font-body text-slate text-right tabular-nums">{row[`r${n}`] || '—'}</td>
+                    ))}
+                    <td className="px-4 py-2.5 font-body font-semibold text-navy text-right tabular-nums">{row.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
+function SurveyResultsTable({ data }) {
   const summary = data?.summary
   const recent = data?.recent || []
 
@@ -108,6 +186,7 @@ function SurveyResultsTable() {
 function DashboardHome() {
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [surveyData, setSurveyData] = useState(null)
 
   function load() {
     apiFetch('/admin/users-overview').then(setOverview).catch(() => {}).finally(() => setLoading(false))
@@ -117,6 +196,10 @@ function DashboardHome() {
     load()
     const interval = setInterval(load, 30000) // refresh "active now" every 30s
     return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    apiFetch('/survey/results').then(setSurveyData).catch(() => {})
   }, [])
 
   if (loading) return <div className="px-8 py-8"><p className="font-body text-slate">Loading...</p></div>
@@ -154,7 +237,8 @@ function DashboardHome() {
         </div>
       </div>
 
-      <SurveyResultsTable />
+      <SurveyByCountryChart rows={surveyData?.by_country_rating || []} />
+      <SurveyResultsTable data={surveyData} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <CountryMap title="All Users by Location" points={byCountry} color="#2563EB" />
