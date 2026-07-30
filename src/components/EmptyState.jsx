@@ -1,5 +1,5 @@
 export default function EmptyState({ icon: Icon, title, subtitle, actionLabel, onAction }) {
-  const isComponent = typeof Icon === 'function'
+  const isComponent = typeof Icon === 'function' || (typeof Icon === 'object' && Icon !== null)
   return (
     <div className="text-center py-16 px-6 bg-white border border-dashed border-slate-300 rounded-2xl">
       <div className={`mb-3 flex items-center justify-center ${isComponent ? 'text-slate-300' : 'text-4xl opacity-60'}`}>
