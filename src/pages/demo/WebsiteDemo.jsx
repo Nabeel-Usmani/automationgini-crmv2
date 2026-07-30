@@ -7,6 +7,18 @@ import MetricCard from '../../components/MetricCard'
 import TabButton from '../../components/TabButton'
 import TemplateGallery from '../../components/TemplateGallery'
 
+function ProgressBar({ done, total, className = '' }) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0
+  return (
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className="flex-1 h-1.5 bg-blue-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full bg-blue rounded-full transition-all duration-500" style={{ width: `${pct}%` }} />
+      </div>
+      <span className="font-mono text-xs text-slate-400 tabular-nums">{pct}%</span>
+    </div>
+  )
+}
+
 export default function WebsiteDemo() {
   const [tab, setTab] = useState('new')
   const [selectedLead, setSelectedLead] = useState(null)
@@ -18,11 +30,27 @@ export default function WebsiteDemo() {
   const [created, setCreated] = useState([])
   const [billing, setBilling] = useState(null)
   const pollRef = useRef(null)
+  const listPollRef = useRef(null)
 
   useEffect(() => {
     apiFetch('/billing/summary').then(setBilling).catch(() => {})
-    apiFetch('/demo/website/created').then(setCreated).catch(() => {})
-    return () => clearInterval(pollRef.current)
+
+    function loadCreated() {
+      apiFetch('/demo/website/created').then((rows) => {
+        setCreated(rows)
+        const stillBuilding = rows.some((r) => r.fulfillment_status !== 'completed')
+        clearInterval(listPollRef.current)
+        if (tab === 'created' && stillBuilding) {
+          listPollRef.current = setInterval(loadCreated, 8000)
+        }
+      }).catch(() => {})
+    }
+    loadCreated()
+
+    return () => {
+      clearInterval(pollRef.current)
+      clearInterval(listPollRef.current)
+    }
   }, [tab])
 
   function pollStatus(purchaseId, token) {
@@ -86,7 +114,10 @@ export default function WebsiteDemo() {
           </div>
           {status && <p className="font-body text-sm text-slate">{status}</p>}
           {progress && progress.fulfillment_status !== 'completed' && (
-            <p className="font-mono text-xs text-slate-400">{progress.pages_done.length} / {progress.pages_total} pages generated so far...</p>
+            <div className="max-w-xs">
+              <ProgressBar done={progress.pages_done.length} total={progress.pages_total} />
+              <p className="font-mono text-xs text-slate-400 mt-1">{progress.pages_done.length} / {progress.pages_total} pages generated so far...</p>
+            </div>
           )}
           {previewUrl && (
             <a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 font-body font-semibold text-sm text-white bg-blue hover:bg-blue-light rounded-lg px-5 py-2.5 transition-colors">
@@ -109,7 +140,10 @@ export default function WebsiteDemo() {
                   Open Preview
                 </a>
               ) : (
-                <span className="text-xs font-semibold text-amber-700 bg-amber-100 rounded-lg px-3 py-1.5">Still building...</span>
+                <div className="w-36">
+                  <ProgressBar done={d.pages_done} total={d.pages_total} />
+                  <p className="font-body text-xs text-amber-700 mt-1 text-right">Building... ({d.pages_done}/{d.pages_total})</p>
+                </div>
               )}
             </div>
           ))}
