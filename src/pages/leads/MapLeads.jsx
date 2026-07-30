@@ -14,6 +14,12 @@ const STATUS_COLORS = {
   'Follow-up': 'bg-amber-100 text-amber-800',
 }
 
+const TIER_COLORS = {
+  'Hot': 'bg-red-100 text-red-700',
+  'Warm': 'bg-amber-100 text-amber-800',
+  'Cold': 'bg-slate-100 text-slate',
+}
+
 export default function MapLeads() {
   const [leads, setLeads] = useState([])
   const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: STATUS_OPTIONS })
@@ -23,6 +29,7 @@ export default function MapLeads() {
   const [phoneFilter, setPhoneFilter] = useState('all')
   const [websiteFilter, setWebsiteFilter] = useState('all')
   const [emailFilter, setEmailFilter] = useState('all')
+  const [tierFilter, setTierFilter] = useState('all')
   const [businessSearch, setBusinessSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState(new Set())
 
@@ -91,7 +98,8 @@ export default function MapLeads() {
     (ratingFilter === 'all' || (ratingFilter === 'under4' ? (l.total_score == null || l.total_score < 4) : l.total_score >= 4)) &&
     (phoneFilter === 'all' || (phoneFilter === 'has' ? !!l.phone_number : !l.phone_number)) &&
     (websiteFilter === 'all' || (websiteFilter === 'has' ? l.website_status !== 'NO WEBSITE DETECTED' : l.website_status === 'NO WEBSITE DETECTED')) &&
-    (emailFilter === 'all' || (emailFilter === 'has' ? !!l.email : !l.email))
+    (emailFilter === 'all' || (emailFilter === 'has' ? !!l.email : !l.email)) &&
+    (tierFilter === 'all' || l.qualification_tier === tierFilter)
   )
 
   async function callLead(lead) {
@@ -224,6 +232,15 @@ export default function MapLeads() {
                   </select>
                 </th>
                 <th className="text-left px-4 py-2.5">
+                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Qualification</p>
+                  <select value={tierFilter} onChange={(e) => setTierFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
+                    <option value="all">All</option>
+                    <option value="Hot">Hot</option>
+                    <option value="Warm">Warm</option>
+                    <option value="Cold">Cold</option>
+                  </select>
+                </th>
+                <th className="text-left px-4 py-2.5">
                   <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Status</p>
                   <FilterPopover label="" options={options.statuses} selected={filters.statuses} onChange={(v) => setFilters((f) => ({ ...f, statuses: v }))} />
                 </th>
@@ -292,6 +309,23 @@ export default function MapLeads() {
                       <a href={`mailto:${lead.email}`} className="font-body text-sm text-blue hover:underline">
                         {lead.email}
                       </a>
+                    ) : (
+                      <span className="font-mono text-xs text-slate-300">—</span>
+                    )}
+                    {lead.social_links && (
+                      <p className="font-mono text-[11px] text-slate-400 mt-0.5">
+                        {lead.social_links.split(',').filter(Boolean).length} social profile{lead.social_links.split(',').filter(Boolean).length === 1 ? '' : 's'} found
+                      </p>
+                    )}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    {lead.qualification_tier ? (
+                      <span
+                        title={lead.qualification_notes || ''}
+                        className={`inline-flex items-center text-xs font-semibold rounded-full px-2.5 py-1 ${TIER_COLORS[lead.qualification_tier] || 'bg-slate-100 text-slate'}`}
+                      >
+                        {lead.qualification_tier}
+                      </span>
                     ) : (
                       <span className="font-mono text-xs text-slate-300">—</span>
                     )}
