@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Target, Archive, Trash2, Phone, Ban, Globe, Map as MapIcon } from 'lucide-react'
+import { Target, Archive, Trash2, Phone, Ban, Globe, Map as MapIcon, RefreshCw } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import FilterPopover from '../../components/FilterPopover'
 import EmptyState from '../../components/EmptyState'
+import ProgressBar from '../../components/ProgressBar'
+import useActiveSearchJobs from '../../hooks/useActiveSearchJobs'
 
 const STATUS_OPTIONS = ['New', 'Called', 'Interested', 'Not Interested', 'Follow-up']
 
@@ -88,6 +90,8 @@ export default function MapLeads() {
 
   useEffect(() => { refresh() }, [])
 
+  const jobs = useActiveSearchJobs(refresh)
+
   const filtered = leads.filter((l) =>
     (filters.niches.length === 0 || filters.niches.includes(l.niche)) &&
     (filters.countries.length === 0 || filters.countries.includes(l.country)) &&
@@ -137,6 +141,19 @@ export default function MapLeads() {
         <FilterPopover label="City" options={options.cities} selected={filters.cities} onChange={(v) => setFilters((f) => ({ ...f, cities: v }))} />
       </div>
 
+      {jobs.length > 0 && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-4 space-y-2.5">
+          {jobs.map((j) => (
+            <div key={j.search_id}>
+              <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">
+                {j.niche} · {j.city} {j.status === 'running' ? '· searching...' : j.status === 'failed' ? '· failed to start' : '· done'}
+              </p>
+              <ProgressBar done={j.leads_found ?? 0} total={j.target_leads} />
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={() => setHighPotentialOnly((v) => !v)}
@@ -146,7 +163,17 @@ export default function MapLeads() {
         >
           <Target size={15} /> High-Potential Only
         </button>
-        <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
+        <div className="flex items-center gap-3">
+          <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
+          <button
+            onClick={refresh}
+            disabled={loading}
+            title="Refresh leads"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate bg-white border border-slate-200 hover:border-blue hover:text-blue disabled:opacity-60 rounded-lg px-3 py-1.5 transition-colors"
+          >
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} /> Refresh
+          </button>
+        </div>
       </div>
 
       {selectedIds.size > 0 && (

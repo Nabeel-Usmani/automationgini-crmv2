@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Search as SearchIcon, X } from 'lucide-react'
 import { apiFetch } from '../lib/api'
+import ProgressBar from '../components/ProgressBar'
+import useActiveSearchJobs, { trackSearchJobs } from '../hooks/useActiveSearchJobs'
 
 export default function Search() {
   const [niche, setNiche] = useState('')
@@ -18,6 +20,7 @@ export default function Search() {
   const [status, setStatus] = useState('')
   const [loading, setLoading] = useState(false)
   const debounceRef = useRef(null)
+  const jobs = useActiveSearchJobs()
 
   useEffect(() => {
     apiFetch('/search/countries').then((list) => {
@@ -78,6 +81,9 @@ export default function Search() {
         }),
       })
       setStatus(result.message)
+      if (result.jobs?.length) {
+        trackSearchJobs(result.jobs.map((j) => ({ ...j, niche: niche.trim(), target_leads: maxLeads })))
+      }
     } catch (e) {
       setStatus(e.message)
     } finally {
@@ -184,6 +190,20 @@ export default function Search() {
           <SearchIcon size={16} /> Run Search
         </button>
         {status && <p className="font-body text-sm text-slate">{status}</p>}
+
+        {jobs.length > 0 && (
+          <div className="space-y-2 pt-1">
+            {jobs.map((j) => (
+              <div key={j.search_id}>
+                <p className="font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">
+                  {j.city} {j.status === 'running' ? '· searching...' : j.status === 'failed' ? '· failed to start' : '· done'}
+                </p>
+                <ProgressBar done={j.leads_found ?? 0} total={j.target_leads} />
+              </div>
+            ))}
+            <p className="font-body text-xs text-slate">New leads will appear on the Map Leads page as they're found.</p>
+          </div>
+        )}
       </div>
     </div>
   )
