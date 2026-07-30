@@ -37,6 +37,7 @@ export default function WebsiteDemo() {
 
     function loadCreated() {
       apiFetch('/demo/website/created').then((rows) => {
+        if (!Array.isArray(rows)) return
         setCreated(rows)
         const stillBuilding = rows.some((r) => r.fulfillment_status !== 'completed')
         clearInterval(listPollRef.current)
