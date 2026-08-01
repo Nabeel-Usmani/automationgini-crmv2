@@ -22,7 +22,7 @@ export default function Search() {
   const [maxRating, setMaxRating] = useState(4)
   const [platforms, setPlatforms] = useState([])
   const [businessType, setBusinessType] = useState('both')
-  const [presenceGap, setPresenceGap] = useState('no_website')
+  const [presenceGap, setPresenceGap] = useState('weak_presence')
   const [businessSize, setBusinessSize] = useState('any')
   const [minContactability, setMinContactability] = useState(true)
   const [reputationSignal, setReputationSignal] = useState(false)
