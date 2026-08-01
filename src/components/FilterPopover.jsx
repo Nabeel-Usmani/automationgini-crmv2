@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 
-export default function FilterPopover({ label, options, selected, onChange }) {
+export default function FilterPopover({ label, options: rawOptions, selected, onChange }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
 
+  const options = rawOptions.filter((o) => typeof o === 'string' && o.length > 0)
   const allSelected = options.length > 0 && selected.length === options.length
   const summary = options.length === 0 ? '—'
     : allSelected ? 'All'
