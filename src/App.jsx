@@ -4,6 +4,7 @@ import AuthCallback from './pages/AuthCallback'
 import Home from './pages/Home'
 import Layout from './components/Layout'
 import MapLeads from './pages/leads/MapLeads'
+import OtherPlatformsLeads from './pages/leads/OtherPlatformsLeads'
 import PremiumLeads from './pages/leads/PremiumLeads'
 import ArchivedLeads from './pages/leads/ArchivedLeads'
 import Account from './pages/Account'
@@ -57,6 +58,7 @@ export default function App() {
         <Route path="/social-media-automation" element={<Layout>{() => <ComingSoon icon={Share2} title="Social Media Automation" description="Coming soon — automatically generate and publish on-brand posts across Facebook, Instagram, and LinkedIn for your clients, no manual work required." />}</Layout>} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
+        <Route path="/leads/other-platforms" element={wrap(OtherPlatformsLeads)} />
         <Route path="/leads/premium" element={wrap(PremiumLeads)} />
         <Route path="/leads/archived" element={wrap(ArchivedLeads)} />
         <Route path="/account" element={wrap(Account)} />

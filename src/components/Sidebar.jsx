@@ -12,6 +12,7 @@ const NAV_SECTIONS = [
     label: 'Leads', icon: Map,
     children: [
       { label: 'Map Leads', path: '/leads/map' },
+      { label: 'Other Platforms', path: '/leads/other-platforms' },
       { label: 'Premium Leads', path: '/leads/premium' },
       { label: 'Archived Leads', path: '/leads/archived' },
     ],

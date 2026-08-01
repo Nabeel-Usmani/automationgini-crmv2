@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Target, Archive, Trash2, Phone, Ban, Globe, Map as MapIcon, RefreshCw } from 'lucide-react'
+import { Target, Archive, Trash2, Phone, Ban, Globe, Layers, RefreshCw } from 'lucide-react'
 import { apiFetch } from '../../lib/api'
 import FilterPopover from '../../components/FilterPopover'
 import EmptyState from '../../components/EmptyState'
@@ -22,12 +22,10 @@ const TIER_COLORS = {
   'Cold': 'bg-slate-100 text-slate',
 }
 
-export default function MapLeads() {
+export default function OtherPlatformsLeads() {
   const [leads, setLeads] = useState([])
   const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: STATUS_OPTIONS })
   const [filters, setFilters] = useState({ niches: [], countries: [], cities: [], statuses: [] })
-  const [highPotentialOnly, setHighPotentialOnly] = useState(false)
-  const [ratingFilter, setRatingFilter] = useState('all')
   const [phoneFilter, setPhoneFilter] = useState('all')
   const [websiteFilter, setWebsiteFilter] = useState('all')
   const [emailFilter, setEmailFilter] = useState('all')
@@ -78,11 +76,11 @@ export default function MapLeads() {
 
   function refresh() {
     setLoading(true)
-    apiFetch('/leads?channel=google_maps').then((data) => setLeads(data || [])).catch(() => {}).finally(() => setLoading(false))
+    apiFetch('/leads?channel=other_platforms').then((data) => setLeads(data || [])).catch(() => {}).finally(() => setLoading(false))
   }
 
   useEffect(() => {
-    apiFetch('/leads/filter-options?channel=google_maps').then((o) => {
+    apiFetch('/leads/filter-options?channel=other_platforms').then((o) => {
       setOptions(o)
       setFilters({ niches: o.niches, countries: o.countries, cities: o.cities, statuses: o.statuses })
     }).catch(() => {})
@@ -97,9 +95,7 @@ export default function MapLeads() {
     (filters.countries.length === 0 || filters.countries.includes(l.country)) &&
     (filters.cities.length === 0 || filters.cities.includes(l.city)) &&
     (filters.statuses.length === 0 || filters.statuses.includes(l.call_status)) &&
-    (!highPotentialOnly || l.is_high_potential) &&
     (!businessSearch.trim() || l.business_name.toLowerCase().includes(businessSearch.trim().toLowerCase())) &&
-    (ratingFilter === 'all' || (ratingFilter === 'under4' ? (l.total_score == null || l.total_score < 4) : l.total_score >= 4)) &&
     (phoneFilter === 'all' || (phoneFilter === 'has' ? !!l.phone_number : !l.phone_number)) &&
     (websiteFilter === 'all' || (websiteFilter === 'has' ? l.website_status !== 'NO WEBSITE DETECTED' : l.website_status === 'NO WEBSITE DETECTED')) &&
     (emailFilter === 'all' || (emailFilter === 'has' ? !!l.email : !l.email)) &&
@@ -132,8 +128,8 @@ export default function MapLeads() {
 
   return (
     <div className="max-w-7xl mx-auto px-8 py-8">
-      <h1 className="font-display font-semibold text-2xl text-navy mb-1">Map Leads</h1>
-      <p className="font-body text-slate mb-6">Every lead scraped from Google Maps, filterable by location and niche.</p>
+      <h1 className="font-display font-semibold text-2xl text-navy mb-1">Other Platforms Leads</h1>
+      <p className="font-body text-slate mb-6">Every lead sourced from Yelp, Facebook, BBB, and other B2B/B2C platforms, filterable by location and niche.</p>
 
       <div className="bg-white border border-slate-200 rounded-2xl p-4 mb-4 grid grid-cols-2 md:grid-cols-3 gap-3">
         <FilterPopover label="Niche" options={options.niches} selected={filters.niches} onChange={(v) => setFilters((f) => ({ ...f, niches: v }))} />
@@ -154,15 +150,7 @@ export default function MapLeads() {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={() => setHighPotentialOnly((v) => !v)}
-          className={`flex items-center gap-2 text-sm font-semibold px-3.5 py-2 rounded-lg transition-colors ${
-            highPotentialOnly ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-white border border-slate-200 text-slate hover:border-amber-300'
-          }`}
-        >
-          <Target size={15} /> High-Potential Only
-        </button>
+      <div className="flex items-center justify-end mb-4">
         <div className="flex items-center gap-3">
           <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
           <button
@@ -203,7 +191,7 @@ export default function MapLeads() {
       {loading ? (
         <p className="font-body text-slate">Loading...</p>
       ) : filtered.length === 0 ? (
-        <EmptyState icon={MapIcon} title="No leads match your filters" subtitle="Try widening your filters, or run a new search." />
+        <EmptyState icon={Layers} title="No leads match your filters" subtitle="Try widening your filters, or run a new Other Platforms search." />
       ) : (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
           <table className="w-full text-sm">
@@ -225,14 +213,6 @@ export default function MapLeads() {
                     placeholder="Search..."
                     className="w-full text-xs border border-slate-200 rounded px-2 py-1 font-body"
                   />
-                </th>
-                <th className="text-left px-4 py-2.5">
-                  <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Rating</p>
-                  <select value={ratingFilter} onChange={(e) => setRatingFilter(e.target.value)} className="text-xs border border-slate-200 rounded px-1.5 py-1 font-body">
-                    <option value="all">All</option>
-                    <option value="under4">Under 4★</option>
-                    <option value="4plus">4★ +</option>
-                  </select>
                 </th>
                 <th className="text-left px-4 py-2.5">
                   <p className="font-mono text-[11px] uppercase tracking-wide text-slate-500 mb-1">Phone</p>
@@ -286,22 +266,8 @@ export default function MapLeads() {
                     />
                   </td>
                   <td className="px-4 py-3.5">
-                    <div className="flex items-center gap-2">
-                      {lead.is_high_potential && (
-                        <Target size={14} title="High potential: 1-15 reviews, under 4 stars" className="text-amber-500 shrink-0" />
-                      )}
-                      <div>
-                        <p className="font-body font-semibold text-navy">{lead.business_name}</p>
-                        <p className="font-body text-xs text-slate">{lead.niche} · {lead.city}, {lead.country}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3.5">
-                    {lead.total_score ? (
-                      <span className="font-mono text-xs text-amber-600">★ {lead.total_score} ({lead.review_count})</span>
-                    ) : (
-                      <span className="font-mono text-xs text-slate-300">—</span>
-                    )}
+                    <p className="font-body font-semibold text-navy">{lead.business_name}</p>
+                    <p className="font-body text-xs text-slate">{lead.niche} · {lead.city}, {lead.country}</p>
                   </td>
                   <td className="px-4 py-3.5">
                     {lead.phone_number ? (
