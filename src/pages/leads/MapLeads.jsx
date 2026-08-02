@@ -22,6 +22,24 @@ const TIER_COLORS = {
   'Cold': 'bg-slate-100 text-slate',
 }
 
+// A category with everything (or nothing yet) selected stays "All" as new
+// values show up; a category the user has narrowed keeps their picks but
+// still gains newly-discovered values so fresh leads aren't hidden.
+function mergeFilterOptions(prevOptions, prevFilters, newOptions) {
+  const mergeCategory = (prevOpts, prevSel, newOpts) => {
+    const hadAllSelected = prevOpts.length === 0 || prevSel.length === prevOpts.length
+    if (hadAllSelected) return newOpts
+    const newlyAdded = newOpts.filter((o) => !prevOpts.includes(o))
+    return [...prevSel.filter((s) => newOpts.includes(s)), ...newlyAdded]
+  }
+  return {
+    niches: mergeCategory(prevOptions.niches, prevFilters.niches, newOptions.niches),
+    countries: mergeCategory(prevOptions.countries, prevFilters.countries, newOptions.countries),
+    cities: mergeCategory(prevOptions.cities, prevFilters.cities, newOptions.cities),
+    statuses: mergeCategory(prevOptions.statuses, prevFilters.statuses, newOptions.statuses),
+  }
+}
+
 export default function MapLeads() {
   const [leads, setLeads] = useState([])
   const [options, setOptions] = useState({ niches: [], countries: [], cities: [], statuses: STATUS_OPTIONS })
@@ -81,6 +99,13 @@ export default function MapLeads() {
     apiFetch('/leads?channel=google_maps').then((data) => setLeads(data || [])).catch(() => {}).finally(() => setLoading(false))
   }
 
+  function loadFilterOptions() {
+    apiFetch('/leads/filter-options?channel=google_maps').then((o) => {
+      setFilters((prevFilters) => mergeFilterOptions(options, prevFilters, o))
+      setOptions(o)
+    }).catch(() => {})
+  }
+
   useEffect(() => {
     apiFetch('/leads/filter-options?channel=google_maps').then((o) => {
       setOptions(o)
@@ -90,7 +115,12 @@ export default function MapLeads() {
 
   useEffect(() => { refresh() }, [])
 
-  const jobs = useActiveSearchJobs(refresh)
+  function refreshAll() {
+    refresh()
+    loadFilterOptions()
+  }
+
+  const jobs = useActiveSearchJobs(refreshAll)
 
   const filtered = leads.filter((l) =>
     (filters.niches.length === 0 || filters.niches.includes(l.niche)) &&
@@ -166,7 +196,7 @@ export default function MapLeads() {
         <div className="flex items-center gap-3">
           <p className="font-mono text-xs text-slate-400">{filtered.length} of {leads.length} leads shown</p>
           <button
-            onClick={refresh}
+            onClick={refreshAll}
             disabled={loading}
             title="Refresh leads"
             className="flex items-center gap-1.5 text-xs font-semibold text-slate bg-white border border-slate-200 hover:border-blue hover:text-blue disabled:opacity-60 rounded-lg px-3 py-1.5 transition-colors"
