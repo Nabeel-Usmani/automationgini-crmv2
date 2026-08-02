@@ -48,7 +48,9 @@ function SidebarContent({ user, onNavigate }) {
   const isAgencyTier = user?.plan_name === 'Agency'
   const isPlatformOwner = !!user?.is_platform_owner
 
-  const sections = [...NAV_SECTIONS]
+  const sections = NAV_SECTIONS.map((s) =>
+    s.path === '/email-automation' ? { ...s, comingSoon: !user?.email_automation_enabled } : s
+  )
   if (isAgencyTier && user?.role === 'admin') {
     sections.push({ label: 'Manage Agents', icon: Users, path: '/manage-agents', flat: true })
   }

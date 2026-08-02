@@ -23,6 +23,7 @@ import PlatformOwnerDashboard from './pages/PlatformOwnerDashboard'
 import AgencyOwners from './pages/AgencyOwners'
 import AdminSettings from './pages/AdminSettings'
 import ComingSoon from './pages/ComingSoon'
+import EmailAutomation from './pages/EmailAutomation'
 import ChatWidget from './components/ChatWidget'
 import PortalLogin from './portal/PortalLogin'
 import PortalSetPassword from './portal/PortalSetPassword'
@@ -54,7 +55,7 @@ export default function App() {
         <Route path="/platform-owner/admin-settings" element={<AdminSettings />} />
         <Route path="/platform-admin" element={<Navigate to="/platform-owner" replace />} />
         <Route path="/messenger" element={<Layout>{() => <ComingSoon icon={MessageCircle} title="Messenger" />}</Layout>} />
-        <Route path="/email-automation" element={<Layout>{() => <ComingSoon icon={Mail} title="Email Automation" />}</Layout>} />
+        <Route path="/email-automation" element={<Layout>{(user) => user.email_automation_enabled ? <EmailAutomation /> : <ComingSoon icon={Mail} title="Email Automation" />}</Layout>} />
         <Route path="/social-media-automation" element={<Layout>{() => <ComingSoon icon={Share2} title="Social Media Automation" description="Coming soon — automatically generate and publish on-brand posts across Facebook, Instagram, and LinkedIn for your clients, no manual work required." />}</Layout>} />
         <Route path="/dashboard" element={wrap(Home)} />
         <Route path="/leads/map" element={wrap(MapLeads)} />
