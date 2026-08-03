@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Mail, RefreshCw, Eye } from 'lucide-react'
+import { Mail, RefreshCw, Eye, LayoutDashboard } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import { apiFetch } from '../lib/api'
 import MetricCard from '../components/MetricCard'
@@ -121,7 +121,8 @@ export default function EmailAutomation() {
         until they reply.
       </p>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+        <OverviewCard active={filter === null} onClick={() => setFilter(null)} />
         <MetricCard label="Initial Sent" value={stats?.initial_sent} onClick={() => toggleFilter('initial_sent')} active={filter === 'initial'} />
         <MetricCard label="Follow-ups Sent" value={stats?.followups_sent} onClick={() => toggleFilter('followups_sent')} active={filter === 'followups'} />
         <MetricCard label="Replied" value={stats?.replied} onClick={() => toggleFilter('replied')} active={filter === 'replied'} />
@@ -233,6 +234,21 @@ export default function EmailAutomation() {
 
       {previewId && <EmailPreviewModal sendId={previewId} onClose={() => setPreviewId(null)} />}
     </div>
+  )
+}
+
+function OverviewCard({ active, onClick }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center gap-1.5 bg-white border rounded-2xl p-4 transition-colors hover:border-blue/50 cursor-pointer ${
+        active ? 'border-blue ring-2 ring-blue/20' : 'border-slate-200'
+      }`}
+    >
+      <LayoutDashboard size={18} strokeWidth={2.25} className={active ? 'text-blue' : 'text-slate-400'} />
+      <span className={`font-mono text-[11px] uppercase tracking-wide ${active ? 'text-blue' : 'text-slate-400'}`}>Overview</span>
+    </button>
   )
 }
 
