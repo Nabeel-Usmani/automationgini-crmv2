@@ -49,7 +49,7 @@ export default function EmailPreviewModal({ sendId, onClose }) {
             <iframe
               title={`Email preview: ${email.subject}`}
               srcDoc={email.html}
-              sandbox=""
+              sandbox="allow-popups allow-popups-to-escape-sandbox"
               className="w-full h-[60vh] bg-white"
             />
           )}
