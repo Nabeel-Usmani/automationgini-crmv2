@@ -4,7 +4,54 @@ import { apiFetch } from '../lib/api'
 import ProgressBar from '../components/ProgressBar'
 import useActiveSearchJobs, { trackSearchJobs } from '../hooks/useActiveSearchJobs'
 
-const PLATFORM_OPTIONS = ['Yelp', 'Facebook', 'Instagram', 'BBB', 'Nextdoor', 'Angi', 'Thumbtack', 'LinkedIn']
+const PLATFORM_OPTIONS_BY_COUNTRY = {
+  default: ['Facebook', 'Instagram', 'LinkedIn', 'Google Maps Reviews'],
+  US: ['Yelp', 'Facebook', 'Instagram', 'BBB', 'Nextdoor', 'Angi', 'Thumbtack', 'LinkedIn'],
+  CA: ['Yelp', 'Facebook', 'Instagram', 'BBB', 'LinkedIn', 'YellowPages.ca'],
+  GB: ['Yell', 'Trustpilot', 'Checkatrade', 'Facebook', 'Instagram', 'LinkedIn'],
+  IE: ['Golden Pages', 'Trustpilot', 'Facebook', 'Instagram'],
+  AU: ['True Local', 'Yellow Pages', 'Facebook', 'Instagram', 'LinkedIn'],
+  NZ: ['Finda', 'Yellow Pages', 'Facebook', 'Instagram'],
+  OM: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  AE: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  SA: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  QA: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  KW: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  BH: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  JO: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  LB: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  EG: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  IQ: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  YE: ['OpenSooq', 'Facebook', 'Instagram', 'WhatsApp Business', 'Google Maps Reviews'],
+  MA: ['OpenSooq', 'Avito', 'Facebook', 'Instagram'],
+  DZ: ['OpenSooq', 'Avito', 'Facebook', 'Instagram'],
+  TN: ['OpenSooq', 'Avito', 'Facebook', 'Instagram'],
+  LY: ['OpenSooq', 'Avito', 'Facebook', 'Instagram'],
+  ES: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  MX: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  AR: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  CO: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  CL: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  PE: ['Páginas Amarillas', 'Facebook', 'Instagram', 'Google Maps Reviews'],
+  FR: ['PagesJaunes', 'Facebook', 'Instagram', 'LinkedIn'],
+  DE: ['Gelbe Seiten', 'Das Örtliche', 'Facebook', 'Instagram', 'LinkedIn'],
+  AT: ['Gelbe Seiten', 'Das Örtliche', 'Facebook', 'Instagram', 'LinkedIn'],
+  CH: ['local.ch', 'Facebook', 'Instagram'],
+  IT: ['PagineGialle', 'Facebook', 'Instagram'],
+  PT: ['Páginas Amarelas', 'Facebook', 'Instagram'],
+  BR: ['Páginas Amarelas', 'Facebook', 'Instagram'],
+  NL: ['De Telefoongids', 'Facebook', 'Instagram', 'LinkedIn'],
+  IN: ['Justdial', 'Sulekha', 'Facebook', 'Instagram', 'LinkedIn'],
+  PK: ['Facebook', 'Instagram', 'Google Maps Reviews'],
+  TR: ['Sahibinden', 'Facebook', 'Instagram'],
+  ID: ['Facebook', 'Instagram', 'Google Maps Reviews'],
+  SG: ['Facebook', 'Instagram', 'Google Maps Reviews', 'LinkedIn'],
+  MY: ['Facebook', 'Instagram', 'Google Maps Reviews'],
+}
+
+function getPlatformOptions(iso2) {
+  return PLATFORM_OPTIONS_BY_COUNTRY[iso2] || PLATFORM_OPTIONS_BY_COUNTRY.default
+}
 
 export default function Search() {
   const [niche, setNiche] = useState('')
@@ -54,7 +101,10 @@ export default function Search() {
     setSelectedCities([])
     setCityQuery('')
     setCitySuggestions([])
+    setPlatforms([])
   }, [country])
+
+  const platformOptions = getPlatformOptions(country)
 
   useEffect(() => {
     clearTimeout(debounceRef.current)
@@ -215,7 +265,7 @@ export default function Search() {
             <div>
               <label className="block font-mono text-[11px] uppercase tracking-wide text-slate-400 mb-1">Platforms</label>
               <div className="flex flex-wrap gap-1.5">
-                {PLATFORM_OPTIONS.map((p) => (
+                {platformOptions.map((p) => (
                   <button
                     key={p}
                     type="button"
