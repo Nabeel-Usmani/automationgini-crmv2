@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Mail, RefreshCw, Eye, LayoutDashboard } from 'lucide-react'
+import { Mail, RefreshCw, Eye, LayoutDashboard, Reply } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import { apiFetch } from '../lib/api'
 import MetricCard from '../components/MetricCard'
@@ -51,6 +51,8 @@ export default function EmailAutomation() {
   const [timeseries, setTimeseries] = useState([])
   const [sends, setSends] = useState([])
   const [sendsLoading, setSendsLoading] = useState(false)
+  const [replies, setReplies] = useState([])
+  const [repliesLoading, setRepliesLoading] = useState(false)
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState(null) // null | 'initial' | 'followups' | 'replied' | 'active' | 'completed_no_reply'
   const [previewId, setPreviewId] = useState(null)
@@ -79,6 +81,15 @@ export default function EmailAutomation() {
       .then((rows) => setSends(rows || []))
       .catch(() => setSends([]))
       .finally(() => setSendsLoading(false))
+  }, [filter])
+
+  useEffect(() => {
+    if (filter !== 'replied') return
+    setRepliesLoading(true)
+    apiFetch('/email-automation/replies')
+      .then((rows) => setReplies(rows || []))
+      .catch(() => setReplies([]))
+      .finally(() => setRepliesLoading(false))
   }, [filter])
 
   function toggleFilter(key) {
@@ -180,6 +191,8 @@ export default function EmailAutomation() {
         <p className="font-body text-slate">Loading...</p>
       ) : isSentEmailsFilter ? (
         <SentEmailsTable rows={sends} loading={sendsLoading} onView={setPreviewId} />
+      ) : filter === 'replied' ? (
+        <RepliesTable rows={replies} loading={repliesLoading} />
       ) : filteredSequences.length === 0 ? (
         <EmptyState
           icon={Mail}
@@ -249,6 +262,59 @@ function OverviewCard({ active, onClick }) {
       <LayoutDashboard size={18} strokeWidth={2.25} className={active ? 'text-blue' : 'text-slate-400'} />
       <span className={`font-mono text-[11px] uppercase tracking-wide ${active ? 'text-blue' : 'text-slate-400'}`}>Overview</span>
     </button>
+  )
+}
+
+function RepliesTable({ rows, loading }) {
+  if (loading) return <p className="font-body text-slate">Loading...</p>
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Reply}
+        title="No replies captured yet"
+        subtitle="Once a lead replies to nabeel@automationgini.com, it'll show up here automatically."
+      />
+    )
+  }
+  return (
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50">
+            <th className="text-left px-4 py-2.5"><p className="font-mono text-[11px] uppercase tracking-wide text-slate-500">Business</p></th>
+            <th className="text-left px-4 py-2.5"><p className="font-mono text-[11px] uppercase tracking-wide text-slate-500">Reply</p></th>
+            <th className="text-left px-4 py-2.5"><p className="font-mono text-[11px] uppercase tracking-wide text-slate-500">Received</p></th>
+            <th className="px-4 py-2.5" />
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 align-top">
+              <td className="px-4 py-3.5">
+                <p className="font-body font-semibold text-navy">{r.business_name}</p>
+                <p className="font-body text-xs text-slate">{r.niche} · {r.city}, {r.country}</p>
+                <p className="font-mono text-xs text-slate-400 mt-1">{r.from_email}</p>
+              </td>
+              <td className="px-4 py-3.5 max-w-md">
+                <p className="font-body font-semibold text-navy truncate">{r.subject || '(no subject)'}</p>
+                <p className="font-body text-xs text-slate line-clamp-2">{r.body}</p>
+              </td>
+              <td className="px-4 py-3.5">
+                <span className="font-mono text-xs text-slate-400">{new Date(r.received_at).toLocaleString()}</span>
+              </td>
+              <td className="px-4 py-3.5 text-right">
+                <a
+                  href={`mailto:${r.from_email}?subject=${encodeURIComponent(r.subject?.startsWith('Re:') ? r.subject : `Re: ${r.subject || ''}`)}`}
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-blue hover:text-blue-light whitespace-nowrap"
+                >
+                  <Reply size={13} /> Reply via Email
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
